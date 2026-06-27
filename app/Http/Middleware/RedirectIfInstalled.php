@@ -15,6 +15,10 @@ class RedirectIfInstalled
     public function handle(Request $request, Closure $next): Response
     {
         if (Installation::isInstalled()) {
+            if ($request->user()) {
+                return redirect()->route('dashboard');
+            }
+
             return redirect()->route('login');
         }
 

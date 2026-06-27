@@ -190,14 +190,13 @@ export default function SetupIndex({
     const install = () => {
         form.post('/setup/install', {
             preserveState: true,
-            onSuccess: () => {
-                window.location.assign('/dashboard');
-            },
             onError: (errors) => {
                 if (errors.db_host || errors.db_database || errors.db_connection) {
                     setStep('database');
                 } else if (errors.app_name || errors.app_url) {
                     setStep('application');
+                } else if (errors.requirements) {
+                    setStep('requirements');
                 } else {
                     setStep('administrator');
                 }
@@ -265,20 +264,31 @@ export default function SetupIndex({
                         </CardHeader>
                         <CardContent className="space-y-6">
                             {step === 'requirements' && (
-                                <div className="divide-y divide-border rounded-lg border border-border px-4">
-                                    <RequirementRow item={requirements.php_version} />
-                                    {requirements.extensions.map((item) => (
-                                        <RequirementRow
-                                            key={item.label}
-                                            item={item}
-                                        />
-                                    ))}
-                                    {requirements.permissions.map((item) => (
-                                        <RequirementRow
-                                            key={item.label}
-                                            item={item}
-                                        />
-                                    ))}
+                                <div className="space-y-4">
+                                    <div className="divide-y divide-border rounded-lg border border-border px-4">
+                                        <RequirementRow item={requirements.php_version} />
+                                        {requirements.extensions.map((item) => (
+                                            <RequirementRow
+                                                key={item.label}
+                                                item={item}
+                                            />
+                                        ))}
+                                        {requirements.permissions.map((item) => (
+                                            <RequirementRow
+                                                key={item.label}
+                                                item={item}
+                                            />
+                                        ))}
+                                    </div>
+                                    {!requirements.ready && (
+                                        <p className="text-sm text-destructive">
+                                            Fix the failed requirements above before
+                                            continuing. On cPanel, set folders{' '}
+                                            <strong>storage</strong> and{' '}
+                                            <strong>bootstrap/cache</strong> to
+                                            writable (755 or 775).
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
@@ -526,6 +536,7 @@ export default function SetupIndex({
                                         />
                                     </div>
                                     <InputError message={form.errors.requirements} />
+                                    <InputError message={form.errors.install} />
                                 </Form>
                             )}
 

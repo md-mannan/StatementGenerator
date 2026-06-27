@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Installed
+    |--------------------------------------------------------------------------
+    |
+    | Set to true after the web setup wizard completes. Used to detect whether
+    | the application has been installed on production hosts.
+    |
+    */
+
+    'installed' => filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

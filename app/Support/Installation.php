@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\User;
 use Illuminate\Support\Facades\File;
+use RuntimeException;
 
 class Installation
 {
@@ -33,6 +34,10 @@ class Installation
             return ! self::$forceUninstalledForTesting;
         }
 
+        if (config('app.installed') === true) {
+            return true;
+        }
+
         if (File::exists(self::markerPath())) {
             return true;
         }
@@ -44,7 +49,13 @@ class Installation
     {
         File::ensureDirectoryExists(storage_path('app'));
 
-        File::put(self::markerPath(), now()->toIso8601String());
+        if (File::put(self::markerPath(), now()->toIso8601String()) === false) {
+            throw new RuntimeException(
+                'Could not write the installation marker. Make sure storage/app is writable.',
+            );
+        }
+
+        config(['app.installed' => true]);
     }
 
     private static function detectLegacyInstallation(): bool

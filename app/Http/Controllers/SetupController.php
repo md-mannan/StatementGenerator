@@ -7,11 +7,12 @@ use App\Http\Requests\Setup\TestDatabaseRequest;
 use App\Services\SetupRequirementsChecker;
 use App\Services\SetupService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Throwable;
 
 class SetupController extends Controller
 {
@@ -42,11 +43,25 @@ class SetupController extends Controller
     public function install(
         InstallApplicationRequest $request,
         SetupService $setupService,
-    ): RedirectResponse {
+    ): SymfonyResponse {
         try {
             $setupService->install($request->validated());
         } catch (ValidationException $exception) {
             return back()->withErrors($exception->errors())->withInput();
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors([
+                'install' => 'Installation failed: '.$exception->getMessage(),
+            ])->withInput();
+        }
+
+        if ($request->hasSession()) {
+            $request->session()->regenerate();
+        }
+
+        if ($request->header('X-Inertia')) {
+            return Inertia::location(route('dashboard'));
         }
 
         return redirect()->route('dashboard');

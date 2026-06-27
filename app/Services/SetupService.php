@@ -8,6 +8,7 @@ use App\Support\Installation;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use PDO;
@@ -53,18 +54,12 @@ class SetupService
 
         $envValues = $this->buildEnvValues($data);
 
+        if (! app()->runningUnitTests()) {
+            $this->persistEnvironment($envValues);
+        }
+
         $this->applyRuntimeConfiguration($data);
         $this->purgeDatabaseConnection();
-
-        if (! app()->runningUnitTests()) {
-            app()->terminating(function () use ($envValues): void {
-                $this->envFile->update($envValues);
-
-                if (blank(config('app.key'))) {
-                    Artisan::call('key:generate', ['--force' => true]);
-                }
-            });
-        }
 
         try {
             Artisan::call('migrate', ['--force' => true]);
@@ -100,9 +95,12 @@ class SetupService
      */
     private function buildEnvValues(array $data): array
     {
-        return [
+        $appUrl = rtrim((string) $data['app_url'], '/');
+
+        $values = [
             'APP_NAME' => (string) $data['app_name'],
-            'APP_URL' => rtrim((string) $data['app_url'], '/'),
+            'APP_URL' => $appUrl,
+            'APP_INSTALLED' => 'true',
             'VITE_APP_NAME' => (string) $data['app_name'],
             'DB_CONNECTION' => 'mysql',
             'DB_HOST' => (string) $data['db_host'],
@@ -111,6 +109,32 @@ class SetupService
             'DB_USERNAME' => (string) $data['db_username'],
             'DB_PASSWORD' => (string) ($data['db_password'] ?? ''),
         ];
+
+        if (str_starts_with($appUrl, 'https://')) {
+            $values['SESSION_SECURE_COOKIE'] = 'true';
+        }
+
+        return $values;
+    }
+
+    /**
+     * @param  array<string, string|null>  $envValues
+     */
+    private function persistEnvironment(array $envValues): void
+    {
+        $this->envFile->update($envValues);
+
+        $configCachePath = base_path('bootstrap/cache/config.php');
+
+        if (File::exists($configCachePath)) {
+            File::delete($configCachePath);
+        }
+
+        if (blank(config('app.key'))) {
+            Artisan::call('key:generate', ['--force' => true]);
+        }
+
+        config(['app.installed' => true]);
     }
 
     /**
@@ -121,6 +145,7 @@ class SetupService
         config([
             'app.name' => (string) $data['app_name'],
             'app.url' => rtrim((string) $data['app_url'], '/'),
+            'app.installed' => true,
             'database.connections.mysql.host' => (string) $data['db_host'],
             'database.connections.mysql.port' => (string) $data['db_port'],
             'database.connections.mysql.database' => (string) $data['db_database'],
