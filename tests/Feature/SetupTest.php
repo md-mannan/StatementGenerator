@@ -95,7 +95,7 @@ it('rejects invalid install input', function (): void {
 });
 
 it('installs the application and signs in the administrator', function (): void {
-    $this->post(route('setup.install'), [
+    $payload = [
         'db_host' => '127.0.0.1',
         'db_port' => 3306,
         'db_database' => 'testing',
@@ -107,7 +107,14 @@ it('installs the application and signs in the administrator', function (): void 
         'email' => 'admin@example.com',
         'password' => 'Password123!',
         'password_confirmation' => 'Password123!',
-    ])->assertRedirect(route('dashboard'));
+    ];
+
+    $this->postJson(route('setup.install'), $payload)
+        ->assertOk()
+        ->assertJson([
+            'success' => true,
+        ])
+        ->assertJsonStructure(['redirect']);
 
     expect(File::exists(Installation::markerPath()))->toBeTrue();
 

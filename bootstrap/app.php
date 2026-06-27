@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAppIsInstalled;
+use App\Http\Middleware\EnsureHttps;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RedirectIfInstalled;
@@ -21,6 +22,8 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
         $middleware->redirectGuestsTo(function () {
@@ -37,6 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(prepend: [
             EnsureAppIsInstalled::class,
+            EnsureHttps::class,
         ]);
 
         $middleware->web(append: [

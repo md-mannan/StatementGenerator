@@ -79,6 +79,8 @@ export default function SetupIndex({
     const [databaseTestError, setDatabaseTestError] = useState<string | null>(null);
     const [databaseTestStale, setDatabaseTestStale] = useState(false);
     const [testingDatabase, setTestingDatabase] = useState(false);
+    const [installing, setInstalling] = useState(false);
+    const [installError, setInstallError] = useState<string | null>(null);
 
     const activeDatabaseTest = databaseTestStale ? null : databaseTest;
     const activeDatabaseTestError = databaseTestStale ? null : databaseTestError;
@@ -187,21 +189,90 @@ export default function SetupIndex({
         }
     };
 
-    const install = () => {
-        form.post('/setup/install', {
-            preserveState: true,
-            onError: (errors) => {
-                if (errors.db_host || errors.db_database || errors.db_connection) {
+    const install = async () => {
+        setInstalling(true);
+        setInstallError(null);
+        form.clearErrors();
+
+        try {
+            const csrfToken =
+                document
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute('content') ?? '';
+
+            const response = await fetch('/setup/install', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({
+                    db_host: form.data.db_host,
+                    db_port: Number(form.data.db_port),
+                    db_database: form.data.db_database,
+                    db_username: form.data.db_username,
+                    db_password: form.data.db_password,
+                    app_name: form.data.app_name,
+                    app_url: form.data.app_url,
+                    name: form.data.name,
+                    email: form.data.email,
+                    password: form.data.password,
+                    password_confirmation: form.data.password_confirmation,
+                }),
+            });
+
+            const data = (await response.json()) as {
+                success?: boolean;
+                redirect?: string;
+                message?: string;
+                errors?: Record<string, string[]>;
+            };
+
+            if (response.ok && data.success && data.redirect) {
+                window.location.assign(data.redirect);
+                return;
+            }
+
+            if (data.errors) {
+                const fieldErrors = Object.fromEntries(
+                    Object.entries(data.errors).map(([key, messages]) => [
+                        key,
+                        messages[0] ?? '',
+                    ]),
+                ) as Record<string, string>;
+
+                form.setError(fieldErrors);
+
+                if (
+                    fieldErrors.db_host ||
+                    fieldErrors.db_database ||
+                    fieldErrors.db_connection
+                ) {
                     setStep('database');
-                } else if (errors.app_name || errors.app_url) {
+                } else if (fieldErrors.app_name || fieldErrors.app_url) {
                     setStep('application');
-                } else if (errors.requirements) {
+                } else if (fieldErrors.requirements) {
                     setStep('requirements');
                 } else {
                     setStep('administrator');
                 }
-            },
-        });
+            }
+
+            setInstallError(
+                data.errors?.install?.[0] ??
+                    data.errors?.email?.[0] ??
+                    data.message ??
+                    'Installation failed. Please review the errors and try again.',
+            );
+        } catch {
+            setInstallError(
+                'Could not complete installation. Check your connection and try again.',
+            );
+        } finally {
+            setInstalling(false);
+        }
     };
 
     return (
@@ -439,7 +510,7 @@ export default function SetupIndex({
                                 <Form
                                     onSubmit={(event) => {
                                         event.preventDefault();
-                                        install();
+                                        void install();
                                     }}
                                     className="grid gap-4"
                                 >
@@ -537,6 +608,11 @@ export default function SetupIndex({
                                     </div>
                                     <InputError message={form.errors.requirements} />
                                     <InputError message={form.errors.install} />
+                                    {installError && (
+                                        <p className="text-sm text-destructive">
+                                            {installError}
+                                        </p>
+                                    )}
                                 </Form>
                             )}
 
@@ -545,7 +621,7 @@ export default function SetupIndex({
                                     type="button"
                                     variant="outline"
                                     onClick={goBack}
-                                    disabled={currentStepIndex === 0 || form.processing}
+                                    disabled={currentStepIndex === 0 || installing}
                                 >
                                     Back
                                 </Button>
@@ -553,11 +629,15 @@ export default function SetupIndex({
                                 {step === 'administrator' ? (
                                     <Button
                                         type="button"
-                                        onClick={install}
-                                        disabled={form.processing}
+                                        onClick={() => {
+                                            void install();
+                                        }}
+                                        disabled={installing}
                                     >
-                                        {form.processing && <Spinner />}
-                                        Install Statement Analyzer
+                                        {installing && <Spinner />}
+                                        {installing
+                                            ? 'Installing...'
+                                            : 'Install Statement Analyzer'}
                                     </Button>
                                 ) : (
                                     <Button

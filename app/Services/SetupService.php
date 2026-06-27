@@ -107,10 +107,6 @@ class SetupService
             'DB_PASSWORD' => (string) ($data['db_password'] ?? ''),
         ];
 
-        if (str_starts_with($appUrl, 'https://')) {
-            $values['SESSION_SECURE_COOKIE'] = 'true';
-        }
-
         return $values;
     }
 
@@ -187,10 +183,6 @@ class SetupService
             'database.connections.mysql.username' => (string) $data['db_username'],
             'database.connections.mysql.password' => (string) ($data['db_password'] ?? ''),
         ];
-
-        if (str_starts_with($appUrl, 'https://')) {
-            $runtimeConfig['session.secure'] = true;
-        }
 
         config($runtimeConfig);
     }

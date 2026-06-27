@@ -43,13 +43,29 @@ class SetupController extends Controller
     public function install(
         InstallApplicationRequest $request,
         SetupService $setupService,
-    ): SymfonyResponse {
+    ): JsonResponse|SymfonyResponse {
         try {
             $setupService->install($request->validated());
         } catch (ValidationException $exception) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $exception->getMessage(),
+                    'errors' => $exception->errors(),
+                ], 422);
+            }
+
             return back()->withErrors($exception->errors())->withInput();
         } catch (Throwable $exception) {
             report($exception);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Installation failed: '.$exception->getMessage(),
+                    'errors' => [
+                        'install' => ['Installation failed: '.$exception->getMessage()],
+                    ],
+                ], 500);
+            }
 
             return back()->withErrors([
                 'install' => 'Installation failed: '.$exception->getMessage(),
@@ -58,6 +74,13 @@ class SetupController extends Controller
 
         if ($request->hasSession()) {
             $request->session()->regenerate();
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'redirect' => route('dashboard'),
+            ]);
         }
 
         if ($request->header('X-Inertia')) {
