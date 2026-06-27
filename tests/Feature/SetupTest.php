@@ -46,17 +46,34 @@ it('returns errors when database connection fails', function (): void {
             ]));
     });
 
-    $this->from(route('setup.show'))
-        ->post(route('setup.database.test'), [
-            'db_host' => '127.0.0.1',
-            'db_port' => 3306,
-            'db_database' => 'invalid',
-            'db_username' => 'invalid',
-            'db_password' => 'wrong-password',
-        ])
-        ->assertRedirect(route('setup.show'))
-        ->assertSessionHas('errors')
-        ->assertSessionHas('setupDatabaseTested', false);
+    $this->postJson(route('setup.database.test'), [
+        'db_host' => '127.0.0.1',
+        'db_port' => 3306,
+        'db_database' => 'invalid',
+        'db_username' => 'invalid',
+        'db_password' => 'wrong-password',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['db_password']);
+});
+
+it('returns database test result when connection succeeds', function (): void {
+    $this->mock(\App\Services\SetupService::class, function ($mock): void {
+        $mock->shouldReceive('testDatabaseConnection')->once();
+    });
+
+    $this->postJson(route('setup.database.test'), [
+        'db_host' => '127.0.0.1',
+        'db_port' => 3306,
+        'db_database' => 'statements_tracker',
+        'db_username' => 'root',
+        'db_password' => '',
+    ])
+        ->assertOk()
+        ->assertJson([
+            'success' => true,
+            'message' => 'Database connection successful.',
+        ]);
 });
 
 it('rejects invalid install input', function (): void {

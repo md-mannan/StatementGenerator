@@ -1,5 +1,5 @@
 import { Form, Head, useForm } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import AppLogoIcon from '@/components/app-logo-icon';
@@ -15,6 +15,11 @@ type RequirementItem = {
     passed: boolean;
     message: string;
 };
+
+type DatabaseTestResult = {
+    success: boolean;
+    message: string;
+} | null;
 
 type Props = {
     requirements: {
@@ -64,18 +69,19 @@ function RequirementRow({ item }: { item: RequirementItem }) {
     );
 }
 
-type SetupFlash = {
-    setupDatabaseTested?: boolean;
-    setupDatabaseMessage?: string;
-};
-
-export default function SetupIndex({ requirements, defaults, passwordRules }: Props) {
+export default function SetupIndex({
+    requirements,
+    defaults,
+    passwordRules,
+}: Props) {
     const [step, setStep] = useState<StepId>('requirements');
-    const [databaseTested, setDatabaseTested] = useState(false);
-    const [databaseTestMessage, setDatabaseTestMessage] = useState<string | null>(
-        null,
-    );
-    const [databaseTestFailed, setDatabaseTestFailed] = useState(false);
+    const [databaseTest, setDatabaseTest] = useState<DatabaseTestResult>(null);
+    const [databaseTestError, setDatabaseTestError] = useState<string | null>(null);
+    const [databaseTestStale, setDatabaseTestStale] = useState(false);
+    const [testingDatabase, setTestingDatabase] = useState(false);
+
+    const activeDatabaseTest = databaseTestStale ? null : databaseTest;
+    const activeDatabaseTestError = databaseTestStale ? null : databaseTestError;
 
     const form = useForm({
         db_host: defaults.db_host,
@@ -93,17 +99,16 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
 
   const currentStepIndex = steps.findIndex((wizardStep) => wizardStep.id === step);
 
-    useEffect(() => {
-        setDatabaseTested(false);
-        setDatabaseTestFailed(false);
-        setDatabaseTestMessage(null);
-    }, [
-        form.data.db_host,
-        form.data.db_port,
-        form.data.db_database,
-        form.data.db_username,
-        form.data.db_password,
-    ]);
+    const resetDatabaseTestStatus = () => {
+        setDatabaseTestStale(true);
+        setDatabaseTestError(null);
+    };
+
+    const databaseConnectionError =
+        activeDatabaseTestError ??
+        form.errors.db_password ??
+        form.errors.db_database ??
+        form.errors.db_connection;
 
     const goNext = () => {
         const nextStep = steps[currentStepIndex + 1];
@@ -121,40 +126,65 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
         }
     };
 
-    const testDatabase = () => {
-        setDatabaseTested(false);
-        setDatabaseTestFailed(false);
-        setDatabaseTestMessage(null);
+    const testDatabase = async () => {
+        setDatabaseTestStale(false);
+        setDatabaseTestError(null);
+        setTestingDatabase(true);
 
-        form.post('/setup/database/test', {
-            preserveState: true,
-            preserveScroll: true,
-            onSuccess: (page) => {
-                const flash = page.props.flash as SetupFlash | undefined;
-                const hasErrors = Object.keys(page.props.errors ?? {}).length > 0;
+        try {
+            const csrfToken =
+                document
+                    .querySelector('meta[name="csrf-token"]')
+                    ?.getAttribute('content') ?? '';
 
-                if (hasErrors || flash?.setupDatabaseTested !== true) {
-                    return;
-                }
+            const response = await fetch('/setup/database/test', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: JSON.stringify({
+                    db_host: form.data.db_host,
+                    db_port: Number(form.data.db_port),
+                    db_database: form.data.db_database,
+                    db_username: form.data.db_username,
+                    db_password: form.data.db_password,
+                }),
+            });
 
-                setDatabaseTested(true);
-                setDatabaseTestFailed(false);
-                setDatabaseTestMessage(
-                    flash.setupDatabaseMessage ??
-                        'Database connection successful.',
-                );
-            },
-            onError: (errors) => {
-                setDatabaseTested(false);
-                setDatabaseTestFailed(true);
-                setDatabaseTestMessage(
-                    errors.db_password ??
-                        errors.db_database ??
-                        errors.db_connection ??
-                        'Could not connect to the database. Check your credentials and try again.',
-                );
-            },
-        });
+            const data = (await response.json()) as {
+                success?: boolean;
+                message?: string;
+                errors?: Record<string, string[]>;
+            };
+
+            if (response.ok && data.success) {
+                setDatabaseTest({
+                    success: true,
+                    message: data.message ?? 'Database connection successful.',
+                });
+                setDatabaseTestError(null);
+                return;
+            }
+
+            setDatabaseTest(null);
+            setDatabaseTestError(
+                data.errors?.db_password?.[0] ??
+                    data.errors?.db_database?.[0] ??
+                    data.errors?.db_connection?.[0] ??
+                    data.message ??
+                    'Could not connect to the database. Check your host, username, and password.',
+            );
+        } catch {
+            setDatabaseTest(null);
+            setDatabaseTestError(
+                'Could not test the database connection. Please try again.',
+            );
+        } finally {
+            setTestingDatabase(false);
+        }
     };
 
     const install = () => {
@@ -260,12 +290,13 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                             <Input
                                                 id="db_host"
                                                 value={form.data.db_host}
-                                                onChange={(event) =>
+                                                onChange={(event) => {
+                                                    resetDatabaseTestStatus();
                                                     form.setData(
                                                         'db_host',
                                                         event.target.value,
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                             />
                                             <InputError message={form.errors.db_host} />
                                         </div>
@@ -274,12 +305,13 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                             <Input
                                                 id="db_port"
                                                 value={form.data.db_port}
-                                                onChange={(event) =>
+                                                onChange={(event) => {
+                                                    resetDatabaseTestStatus();
                                                     form.setData(
                                                         'db_port',
                                                         event.target.value,
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                             />
                                             <InputError message={form.errors.db_port} />
                                         </div>
@@ -289,12 +321,13 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                         <Input
                                             id="db_database"
                                             value={form.data.db_database}
-                                            onChange={(event) =>
+                                            onChange={(event) => {
+                                                resetDatabaseTestStatus();
                                                 form.setData(
                                                     'db_database',
                                                     event.target.value,
-                                                )
-                                            }
+                                                );
+                                            }}
                                         />
                                         <InputError message={form.errors.db_database} />
                                         <InputError message={form.errors.db_connection} />
@@ -305,12 +338,13 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                             <Input
                                                 id="db_username"
                                                 value={form.data.db_username}
-                                                onChange={(event) =>
+                                                onChange={(event) => {
+                                                    resetDatabaseTestStatus();
                                                     form.setData(
                                                         'db_username',
                                                         event.target.value,
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                             />
                                             <InputError message={form.errors.db_username} />
                                         </div>
@@ -320,12 +354,13 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                                 id="db_password"
                                                 type="password"
                                                 value={form.data.db_password}
-                                                onChange={(event) =>
+                                                onChange={(event) => {
+                                                    resetDatabaseTestStatus();
                                                     form.setData(
                                                         'db_password',
                                                         event.target.value,
-                                                    )
-                                                }
+                                                    );
+                                                }}
                                             />
                                             <InputError message={form.errors.db_password} />
                                         </div>
@@ -334,20 +369,22 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            onClick={testDatabase}
-                                            disabled={form.processing}
+                                            onClick={() => {
+                                                void testDatabase();
+                                            }}
+                                            disabled={testingDatabase || form.processing}
                                         >
-                                            {form.processing && <Spinner />}
+                                            {testingDatabase && <Spinner />}
                                             Test connection
                                         </Button>
-                                        {databaseTested && databaseTestMessage && (
+                                        {activeDatabaseTest?.success === true && (
                                             <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                                                {databaseTestMessage}
+                                                {activeDatabaseTest.message}
                                             </p>
                                         )}
-                                        {databaseTestFailed && databaseTestMessage && (
+                                        {databaseConnectionError && (
                                             <p className="text-sm text-destructive">
-                                                {databaseTestMessage}
+                                                {databaseConnectionError}
                                             </p>
                                         )}
                                     </div>
@@ -518,7 +555,8 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                         disabled={
                                             (step === 'requirements' &&
                                                 !requirements.ready) ||
-                                            (step === 'database' && !databaseTested) ||
+                                            (step === 'database' &&
+                                                activeDatabaseTest?.success !== true) ||
                                             form.processing
                                         }
                                     >
