@@ -4,16 +4,19 @@ namespace App\Policies;
 
 use App\Models\ClientAnnexureEntry;
 use App\Models\User;
+use App\Policies\Concerns\ChecksClientOwnership;
 
 class ClientAnnexureEntryPolicy
 {
+    use ChecksClientOwnership;
+
     public function update(User $user, ClientAnnexureEntry $clientAnnexureEntry): bool
     {
-        return $clientAnnexureEntry->client->user_id === $user->id;
+        return $this->ownsClientId($user, $clientAnnexureEntry->client->user_id);
     }
 
     public function delete(User $user, ClientAnnexureEntry $clientAnnexureEntry): bool
     {
-        return $clientAnnexureEntry->client->user_id === $user->id;
+        return $this->ownsClientId($user, $clientAnnexureEntry->client->user_id);
     }
 }

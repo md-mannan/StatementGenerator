@@ -8,6 +8,7 @@ use App\Models\StatementEntry;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 test('guests cannot access clients', function () {
@@ -24,6 +25,29 @@ test('authenticated users can list their clients', function () {
         ->assertOk();
 });
 
+test('users can open a client when user_id is stored as a string', function () {
+    $user = User::factory()->create();
+    $client = Client::factory()->forUser($user)->create();
+
+    DB::table('clients')
+        ->where('id', $client->id)
+        ->update(['user_id' => (string) $user->id]);
+
+    $this->actingAs($user)
+        ->get(route('clients.show', $client))
+        ->assertOk();
+});
+
+test('users cannot open another users client', function () {
+    $owner = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $client = Client::factory()->forUser($owner)->create();
+
+    $this->actingAs($otherUser)
+        ->get(route('clients.show', $client))
+        ->assertNotFound();
+});
+
 test('users can create a client with branches', function () {
     $user = User::factory()->create();
 
@@ -35,6 +59,10 @@ test('users can create a client with branches', function () {
 
     expect($client)->not->toBeNull()
         ->and($client->user_id)->toBe($user->id);
+
+    $this->actingAs($user)
+        ->get(route('clients.show', $client))
+        ->assertOk();
 
     $this->actingAs($user)
         ->post(route('clients.branches.store', $client), [
@@ -407,7 +435,7 @@ test('users can mark annexure entries as supplier invoice with no branch expecte
     $user = User::factory()->create();
     $client = Client::factory()->forUser($user)->create();
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -453,7 +481,7 @@ test('users can mark received statement entries as supplier invoice with no bran
     $user = User::factory()->create();
     $client = Client::factory()->forUser($user)->create();
 
-    $entry = \App\Models\IncomingStatementEntry::factory()->create([
+    $entry = IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => null,
@@ -856,7 +884,7 @@ test('users can import and view received client statements', function () {
 
     $this->actingAs($user)
         ->post(route('clients.received-statements.import.store', $client), [
-            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent(
+            'file' => UploadedFile::fake()->createWithContent(
                 'client-statement.csv',
                 "date,invoice_no,amount\n10/05/2026,27965,55.000\n11/05/2026,99999,10.000\n",
             ),
@@ -918,7 +946,7 @@ test('received statement export can be limited to filtered entry ids', function 
         'amount' => 55.000,
     ]);
 
-    $included = \App\Models\IncomingStatementEntry::factory()->create([
+    $included = IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -927,7 +955,7 @@ test('received statement export can be limited to filtered entry ids', function 
         'amount' => 60.000,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -963,7 +991,7 @@ test('received statements compare amounts with branch statements', function () {
         'amount' => 55.000,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1007,7 +1035,7 @@ test('received statements filter by invoice month not statement filing month', f
         'amount' => 22.000,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1064,7 +1092,7 @@ test('received statements auto lookup branch from branch statement by invoice', 
         'amount' => 9.000,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => null,
@@ -1099,7 +1127,7 @@ test('received statements support multiple invoice months', function () {
         'name' => 'Branch 01',
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1108,7 +1136,7 @@ test('received statements support multiple invoice months', function () {
         'amount' => 10.000,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1140,7 +1168,7 @@ test('users can delete received statement entries individually and in bulk', fun
         'name' => 'Salmiya',
     ]);
 
-    $entryA = \App\Models\IncomingStatementEntry::factory()->create([
+    $entryA = IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1149,7 +1177,7 @@ test('users can delete received statement entries individually and in bulk', fun
         'amount' => 63.000,
     ]);
 
-    $entryB = \App\Models\IncomingStatementEntry::factory()->create([
+    $entryB = IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1169,7 +1197,7 @@ test('users can delete received statement entries individually and in bulk', fun
             'month' => 5,
         ]));
 
-    expect(\App\Models\IncomingStatementEntry::query()->find($entryA->id))->toBeNull();
+    expect(IncomingStatementEntry::query()->find($entryA->id))->toBeNull();
 
     $this->actingAs($user)
         ->delete(route('clients.received-statements.entries.bulk-destroy', $client), [
@@ -1183,7 +1211,7 @@ test('users can delete received statement entries individually and in bulk', fun
             'month' => 5,
         ]));
 
-    expect(\App\Models\IncomingStatementEntry::query()->find($entryB->id))->toBeNull();
+    expect(IncomingStatementEntry::query()->find($entryB->id))->toBeNull();
 });
 
 test('users can update received statement entries', function () {
@@ -1194,7 +1222,7 @@ test('users can update received statement entries', function () {
         'name' => 'Salmiya',
     ]);
 
-    $entry = \App\Models\IncomingStatementEntry::factory()->create([
+    $entry = IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -1732,7 +1760,7 @@ test('users can bulk add client annexure entries manually', function () {
         ])
         ->assertRedirect();
 
-    $cheque = \App\Models\ClientAnnexureCheque::query()->first();
+    $cheque = ClientAnnexureCheque::query()->first();
 
     expect($cheque)->not->toBeNull();
 
@@ -1784,7 +1812,7 @@ test('annexure branch amount lookup uses invoice date month not cheque month', f
         ])
         ->assertRedirect();
 
-    $cheque = \App\Models\ClientAnnexureCheque::query()->first();
+    $cheque = ClientAnnexureCheque::query()->first();
 
     expect($cheque)->not->toBeNull()
         ->and($cheque->year)->toBe(2026)
@@ -1826,7 +1854,7 @@ test('users can view and save client annexure with check numbers and rebate', fu
 
     $this->actingAs($user)
         ->post(route('clients.annexure.import.store', $client), [
-            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent(
+            'file' => UploadedFile::fake()->createWithContent(
                 'client-annexure.csv',
                 "date,invoice,amount\n10/05/2026,27965,60.000\n",
             ),
@@ -1835,10 +1863,10 @@ test('users can view and save client annexure with check numbers and rebate', fu
             'client' => $client,
             'year' => 2026,
             'month' => 5,
-            'cheque' => \App\Models\ClientAnnexureCheque::query()->first()->id,
+            'cheque' => ClientAnnexureCheque::query()->first()->id,
         ]));
 
-    $cheque = \App\Models\ClientAnnexureCheque::query()->first();
+    $cheque = ClientAnnexureCheque::query()->first();
 
     $this->actingAs($user)
         ->get(route('clients.annexure.index', [
@@ -1936,8 +1964,8 @@ test('users can view and save client annexure with check numbers and rebate', fu
             'month' => 5,
         ]));
 
-    expect(\App\Models\ClientAnnexureCheque::query()->count())->toBe(0);
-    expect(\App\Models\ClientAnnexureEntry::query()->count())->toBe(0);
+    expect(ClientAnnexureCheque::query()->count())->toBe(0);
+    expect(ClientAnnexureEntry::query()->count())->toBe(0);
 
     $this->actingAs($user)
         ->get(route('clients.annexure.export.pdf', [
@@ -1950,7 +1978,7 @@ test('users can view and save client annexure with check numbers and rebate', fu
 
     $this->actingAs($user)
         ->post(route('clients.annexure.import.store', $client), [
-            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent(
+            'file' => UploadedFile::fake()->createWithContent(
                 'client-annexure.csv',
                 "date,invoice,amount\n10/05/2026,27965,60.000\n",
             ),
@@ -1984,7 +2012,7 @@ test('annexure import accepts client amount column headers and excel date format
 
     $this->actingAs($user)
         ->post(route('clients.annexure.import.store', $client), [
-            'file' => \Illuminate\Http\UploadedFile::fake()->createWithContent(
+            'file' => UploadedFile::fake()->createWithContent(
                 'client-annexure.csv',
                 "sl,date,branch_id,invoice_no,client_amount,branch_amount,difference\n1,2026-05-10 00:00:00,04,27965,60.000,55.000,5.000\n",
             ),
@@ -1993,10 +2021,10 @@ test('annexure import accepts client amount column headers and excel date format
             'client' => $client,
             'year' => 2026,
             'month' => 5,
-            'cheque' => \App\Models\ClientAnnexureCheque::query()->first()->id,
+            'cheque' => ClientAnnexureCheque::query()->first()->id,
         ]));
 
-    $cheque = \App\Models\ClientAnnexureCheque::query()->first();
+    $cheque = ClientAnnexureCheque::query()->first();
 
     $this->actingAs($user)
         ->get(route('clients.annexure.index', [
@@ -2030,7 +2058,7 @@ test('users can view cross check reconciling branch received and annexure data',
         'amount' => 21.500,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -2041,7 +2069,7 @@ test('users can view cross check reconciling branch received and annexure data',
         'amount' => 21.500,
     ]);
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -2050,7 +2078,7 @@ test('users can view cross check reconciling branch received and annexure data',
         'amount' => 21.500,
     ]);
 
-    \App\Models\ClientAnnexureEntry::factory()->create([
+    ClientAnnexureEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'client_annexure_cheque_id' => $cheque->id,
@@ -2095,7 +2123,7 @@ test('cross check merges annexure cheque data using invoice month not statement 
         'amount' => 22.000,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -2106,7 +2134,7 @@ test('cross check merges annexure cheque data using invoice month not statement 
         'amount' => 21.175,
     ]);
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -2116,7 +2144,7 @@ test('cross check merges annexure cheque data using invoice month not statement 
         'payment_saved' => true,
     ]);
 
-    \App\Models\ClientAnnexureEntry::factory()->create([
+    ClientAnnexureEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'client_annexure_cheque_id' => $cheque->id,
@@ -2200,7 +2228,7 @@ test('cross check marks mismatched invoices complete when cheque is issued', fun
         'amount' => 21.500,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -2211,7 +2239,7 @@ test('cross check marks mismatched invoices complete when cheque is issued', fun
         'amount' => 25.000,
     ]);
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -2220,7 +2248,7 @@ test('cross check marks mismatched invoices complete when cheque is issued', fun
         'amount' => 25.000,
     ]);
 
-    \App\Models\ClientAnnexureEntry::factory()->create([
+    ClientAnnexureEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'client_annexure_cheque_id' => $cheque->id,
@@ -2260,7 +2288,7 @@ test('cross check merges received rows when branch id is resolved from branch st
         'amount' => 16.250,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => null,
@@ -2290,7 +2318,7 @@ test('cross check uses a single annexure amount when duplicate annexure entries 
         'name' => 'Branch 01',
     ]);
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -2301,7 +2329,7 @@ test('cross check uses a single annexure amount when duplicate annexure entries 
     ]);
 
     foreach ([21.175, 21.175, 21.175] as $amount) {
-        \App\Models\ClientAnnexureEntry::factory()->create([
+        ClientAnnexureEntry::factory()->create([
             'client_id' => $client->id,
             'user_id' => $user->id,
             'client_annexure_cheque_id' => $cheque->id,
@@ -2340,7 +2368,7 @@ test('cross check merges same invoice across different invoice months', function
         'amount' => 17.500,
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -2351,7 +2379,7 @@ test('cross check merges same invoice across different invoice months', function
         'amount' => 17.500,
     ]);
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -2360,7 +2388,7 @@ test('cross check merges same invoice across different invoice months', function
         'amount' => 17.500,
     ]);
 
-    \App\Models\ClientAnnexureEntry::factory()->create([
+    ClientAnnexureEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'client_annexure_cheque_id' => $cheque->id,
@@ -2370,7 +2398,7 @@ test('cross check merges same invoice across different invoice months', function
         'amount' => 17.500,
     ]);
 
-    \App\Models\ClientAnnexureEntry::factory()->create([
+    ClientAnnexureEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'client_annexure_cheque_id' => $cheque->id,
@@ -2404,7 +2432,7 @@ test('cross check marks invoices complete when cheque is issued but invoice is m
         'name' => 'Branch 07',
     ]);
 
-    \App\Models\IncomingStatementEntry::factory()->create([
+    IncomingStatementEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'branch_id' => $branch->id,
@@ -2415,7 +2443,7 @@ test('cross check marks invoices complete when cheque is issued but invoice is m
         'amount' => 17.500,
     ]);
 
-    $cheque = \App\Models\ClientAnnexureCheque::factory()->create([
+    $cheque = ClientAnnexureCheque::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'year' => 2026,
@@ -2425,7 +2453,7 @@ test('cross check marks invoices complete when cheque is issued but invoice is m
         'payment_saved' => true,
     ]);
 
-    \App\Models\ClientAnnexureEntry::factory()->create([
+    ClientAnnexureEntry::factory()->create([
         'client_id' => $client->id,
         'user_id' => $user->id,
         'client_annexure_cheque_id' => $cheque->id,
@@ -2482,7 +2510,7 @@ test('users can view a unified invoice detail page', function () {
             'invoiceNo' => 'INV-900',
         ]))
         ->assertOk()
-            ->assertInertia(fn ($page) => $page
+        ->assertInertia(fn ($page) => $page
             ->component('clients/invoices/show')
             ->where('summary.context', 'invoice')
             ->where('invoice.invoice_no', 'INV-900')

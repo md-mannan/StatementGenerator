@@ -26,7 +26,7 @@ class ClientController extends Controller
         $this->authorize('viewAny', Client::class);
 
         $clients = Client::query()
-            ->where('user_id', $request->user()->id)
+            ->where('user_id', (int) $request->user()->getAuthIdentifier())
             ->withCount('branches')
             ->latest()
             ->get();
@@ -47,10 +47,9 @@ class ClientController extends Controller
     {
         $this->authorize('create', Client::class);
 
-        $client = Client::query()->create([
-            ...$request->validated(),
-            'user_id' => $request->user()->id,
-        ]);
+        $client = new Client($request->validated());
+        $client->user()->associate($request->user());
+        $client->save();
 
         Inertia::flash('toast', [
             'type' => 'success',

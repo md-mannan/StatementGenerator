@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\ClientAnnexureChequeController;
 use App\Http\Controllers\ClientAnnexureController;
 use App\Http\Controllers\ClientAnnexureEntryController;
 use App\Http\Controllers\ClientAnnexureExportController;
@@ -9,22 +10,29 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ClientInvoiceController;
 use App\Http\Controllers\ClientStatementController;
 use App\Http\Controllers\CrossCheckController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GlobalSearchController;
-use App\Http\Controllers\IncomingStatementEntryController;
 use App\Http\Controllers\IncomingStatementController;
+use App\Http\Controllers\IncomingStatementEntryController;
 use App\Http\Controllers\IncomingStatementExportController;
 use App\Http\Controllers\IncomingStatementImportController;
 use App\Http\Controllers\StatementController;
 use App\Http\Controllers\StatementEntryController;
-use App\Http\Controllers\StatementInvoiceScanController;
 use App\Http\Controllers\StatementExportController;
 use App\Http\Controllers\StatementImportController;
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\StatementInvoiceScanController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::bind('client', function (string $value) {
+        return auth()->user()
+            ->clients()
+            ->whereKey($value)
+            ->firstOrFail();
+    });
+
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 
     Route::get('search', GlobalSearchController::class)->name('search');
@@ -80,25 +88,25 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('clients/{client}/annexure/import', [ClientAnnexureImportController::class, 'store'])
         ->name('clients.annexure.import.store');
 
-    Route::post('client-annexure-cheques/{clientAnnexureCheque}/complete-review', [\App\Http\Controllers\ClientAnnexureChequeController::class, 'completeReview'])
+    Route::post('client-annexure-cheques/{clientAnnexureCheque}/complete-review', [ClientAnnexureChequeController::class, 'completeReview'])
         ->name('client-annexure-cheques.complete-review');
 
-    Route::put('client-annexure-cheques/{clientAnnexureCheque}', [\App\Http\Controllers\ClientAnnexureChequeController::class, 'update'])
+    Route::put('client-annexure-cheques/{clientAnnexureCheque}', [ClientAnnexureChequeController::class, 'update'])
         ->name('client-annexure-cheques.update');
 
-    Route::delete('client-annexure-cheques/{clientAnnexureCheque}', [\App\Http\Controllers\ClientAnnexureChequeController::class, 'destroy'])
+    Route::delete('client-annexure-cheques/{clientAnnexureCheque}', [ClientAnnexureChequeController::class, 'destroy'])
         ->name('client-annexure-cheques.destroy');
 
     Route::post('clients/{client}/annexure/entries', [ClientAnnexureEntryController::class, 'bulkStore'])
         ->name('clients.annexure.entries.bulk-store');
 
-    Route::put('client-annexure-entries/{clientAnnexureEntry}', [\App\Http\Controllers\ClientAnnexureEntryController::class, 'update'])
+    Route::put('client-annexure-entries/{clientAnnexureEntry}', [ClientAnnexureEntryController::class, 'update'])
         ->name('client-annexure-entries.update');
 
-    Route::patch('client-annexure-entries/{clientAnnexureEntry}/no-branch-expected', [\App\Http\Controllers\ClientAnnexureEntryController::class, 'updateNoBranchExpected'])
+    Route::patch('client-annexure-entries/{clientAnnexureEntry}/no-branch-expected', [ClientAnnexureEntryController::class, 'updateNoBranchExpected'])
         ->name('client-annexure-entries.no-branch-expected');
 
-    Route::delete('client-annexure-entries/{clientAnnexureEntry}', [\App\Http\Controllers\ClientAnnexureEntryController::class, 'destroy'])
+    Route::delete('client-annexure-entries/{clientAnnexureEntry}', [ClientAnnexureEntryController::class, 'destroy'])
         ->name('client-annexure-entries.destroy');
 
     Route::get('clients/{client}/annexure/export/excel', [ClientAnnexureExportController::class, 'excel'])

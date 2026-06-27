@@ -2,12 +2,14 @@
 
 namespace App\Policies;
 
-use App\Models\Branch;
 use App\Models\Client;
 use App\Models\User;
+use App\Policies\Concerns\ChecksClientOwnership;
 
 class ClientPolicy
 {
+    use ChecksClientOwnership;
+
     public function viewAny(User $user): bool
     {
         return true;
@@ -15,7 +17,7 @@ class ClientPolicy
 
     public function view(User $user, Client $client): bool
     {
-        return $client->user_id === $user->id;
+        return $this->ownsClient($user, $client);
     }
 
     public function create(User $user): bool
@@ -25,11 +27,11 @@ class ClientPolicy
 
     public function update(User $user, Client $client): bool
     {
-        return $client->user_id === $user->id;
+        return $this->ownsClient($user, $client);
     }
 
     public function delete(User $user, Client $client): bool
     {
-        return $client->user_id === $user->id;
+        return $this->ownsClient($user, $client);
     }
 }
