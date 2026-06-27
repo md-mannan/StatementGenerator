@@ -13,15 +13,20 @@ class FrontendAssetPublisher
         return File::exists(public_path('hot'));
     }
 
+    public function canPublish(): bool
+    {
+        return extension_loaded('zip')
+            && class_exists(ZipArchive::class)
+            && File::exists(public_path('build.zip'));
+    }
+
     public function publish(bool $force = false): bool
     {
         if ($this->shouldSkipPublishing()) {
             return false;
         }
 
-        $zipPath = public_path('build.zip');
-
-        if (! File::exists($zipPath)) {
+        if (! $this->canPublish()) {
             return false;
         }
 
@@ -31,31 +36,50 @@ class FrontendAssetPublisher
             return false;
         }
 
-        if (File::isDirectory($buildPath)) {
-            File::deleteDirectory($buildPath);
-        }
+        $zipPath = public_path('build.zip');
+        $temporaryPath = public_path('build-tmp-'.uniqid('', true));
 
-        File::ensureDirectoryExists($buildPath);
+        File::ensureDirectoryExists($temporaryPath);
 
-        $zip = new ZipArchive;
+        try {
+            $zip = new ZipArchive;
 
-        if ($zip->open($zipPath) !== true) {
-            throw new RuntimeException('Unable to open the frontend build archive at public/build.zip.');
-        }
+            if ($zip->open($zipPath) !== true) {
+                return false;
+            }
 
-        if (! $zip->extractTo($buildPath)) {
+            if (! $zip->extractTo($temporaryPath)) {
+                $zip->close();
+
+                return false;
+            }
+
             $zip->close();
 
-            throw new RuntimeException('Unable to extract the frontend build archive to public/build.');
+            if (! File::exists($temporaryPath.'/manifest.json')) {
+                return false;
+            }
+
+            if (File::isDirectory($buildPath)) {
+                File::deleteDirectory($buildPath);
+            }
+
+            File::moveDirectory($temporaryPath, $buildPath);
+
+            return true;
+        } finally {
+            if (File::isDirectory($temporaryPath)) {
+                File::deleteDirectory($temporaryPath);
+            }
         }
-
-        $zip->close();
-
-        return true;
     }
 
     public function archive(): string
     {
+        if (! extension_loaded('zip') || ! class_exists(ZipArchive::class)) {
+            throw new RuntimeException('The PHP zip extension is required to create public/build.zip.');
+        }
+
         $buildPath = public_path('build');
 
         if (! File::isDirectory($buildPath) || ! File::exists($buildPath.'/manifest.json')) {

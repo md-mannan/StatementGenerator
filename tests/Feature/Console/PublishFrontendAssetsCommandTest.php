@@ -63,6 +63,37 @@ test('frontend publish extracts build zip into public build directory', function
     }
 });
 
+test('frontend publish keeps existing build when archive is invalid', function () {
+    $buildPath = public_path('build');
+    $zipPath = public_path('build.zip');
+    $manifest = '{"app.js":"assets/js/app.js"}';
+
+    File::ensureDirectoryExists($buildPath);
+    File::put($buildPath.'/manifest.json', $manifest);
+
+    $backupZip = null;
+
+    if (File::exists($zipPath)) {
+        $backupZip = public_path('build-backup-'.uniqid('', true).'.zip');
+        File::copy($zipPath, $backupZip);
+    }
+
+    File::put($zipPath, 'not-a-valid-zip');
+
+    try {
+        $published = app(FrontendAssetPublisher::class)->publish(force: true);
+
+        expect($published)->toBeFalse()
+            ->and(File::get($buildPath.'/manifest.json'))->toBe($manifest);
+    } finally {
+        File::delete($zipPath);
+
+        if ($backupZip !== null) {
+            File::move($backupZip, $zipPath);
+        }
+    }
+});
+
 test('frontend publish skips while vite hot file exists', function () {
     $hotPath = public_path('hot');
 
