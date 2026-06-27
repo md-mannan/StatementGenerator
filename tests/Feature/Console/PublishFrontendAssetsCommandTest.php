@@ -41,7 +41,7 @@ test('frontend publish extracts build zip into public build directory', function
     try {
         $published = app(FrontendAssetPublisher::class)->publish(force: true);
 
-        expect($published)->toBeTrue()
+        expect($published->success)->toBeTrue()
             ->and(File::exists($originalBuild.'/manifest.json'))->toBeTrue()
             ->and(File::get($originalBuild.'/assets/js/app.js'))->toBe('console.log("backup");');
     } finally {
@@ -83,7 +83,7 @@ test('frontend publish keeps existing build when archive is invalid', function (
     try {
         $published = app(FrontendAssetPublisher::class)->publish(force: true);
 
-        expect($published)->toBeFalse()
+        expect($published->success)->toBeFalse()
             ->and(File::get($buildPath.'/manifest.json'))->toBe($manifest);
     } finally {
         File::delete($zipPath);
@@ -100,7 +100,7 @@ test('frontend publish skips while vite hot file exists', function () {
     File::put($hotPath, 'http://localhost:5173');
 
     try {
-        expect(app(FrontendAssetPublisher::class)->publish(force: true))->toBeFalse();
+        expect(app(FrontendAssetPublisher::class)->publish(force: true)->success)->toBeFalse();
     } finally {
         File::delete($hotPath);
     }

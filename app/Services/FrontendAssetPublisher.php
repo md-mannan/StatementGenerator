@@ -20,53 +20,86 @@ class FrontendAssetPublisher
             && File::exists(public_path('build.zip'));
     }
 
-    public function publish(bool $force = false): bool
+    public function publish(bool $force = false): FrontendPublishResult
     {
         if ($this->shouldSkipPublishing()) {
-            return false;
+            return new FrontendPublishResult(
+                success: false,
+                message: 'Skipped: Vite dev server is active (public/hot exists).',
+            );
         }
 
-        if (! $this->canPublish()) {
-            return false;
+        if (! extension_loaded('zip') || ! class_exists(ZipArchive::class)) {
+            return new FrontendPublishResult(
+                success: false,
+                message: 'The PHP zip extension is not enabled on this server.',
+            );
+        }
+
+        $zipPath = public_path('build.zip');
+
+        if (! File::exists($zipPath)) {
+            return new FrontendPublishResult(
+                success: false,
+                message: 'public/build.zip was not found.',
+            );
         }
 
         $buildPath = public_path('build');
 
         if (! $force && File::isDirectory($buildPath) && File::exists($buildPath.'/manifest.json')) {
-            return false;
+            return new FrontendPublishResult(
+                success: false,
+                message: 'public/build already exists. Use --force to replace it.',
+            );
         }
 
-        $zipPath = public_path('build.zip');
         $temporaryPath = public_path('build-tmp-'.uniqid('', true));
 
         File::ensureDirectoryExists($temporaryPath);
 
         try {
             $zip = new ZipArchive;
+            $openResult = $zip->open($zipPath);
 
-            if ($zip->open($zipPath) !== true) {
-                return false;
+            if ($openResult !== true) {
+                return new FrontendPublishResult(
+                    success: false,
+                    message: 'Unable to open public/build.zip (it may be corrupt or incomplete).',
+                );
             }
 
             if (! $zip->extractTo($temporaryPath)) {
                 $zip->close();
 
-                return false;
+                return new FrontendPublishResult(
+                    success: false,
+                    message: 'Unable to extract public/build.zip. Check folder permissions on public/.',
+                );
             }
 
             $zip->close();
 
-            if (! File::exists($temporaryPath.'/manifest.json')) {
-                return false;
+            $sourcePath = $this->resolveExtractedBuildPath($temporaryPath);
+
+            if ($sourcePath === null) {
+                return new FrontendPublishResult(
+                    success: false,
+                    message: 'public/build.zip does not contain a valid Vite manifest.json file.',
+                );
             }
 
-            if (File::isDirectory($buildPath)) {
-                File::deleteDirectory($buildPath);
+            if (! $this->swapBuildDirectory($sourcePath, $buildPath)) {
+                return new FrontendPublishResult(
+                    success: false,
+                    message: 'Unable to move extracted assets into public/build. The previous build was restored if one existed.',
+                );
             }
 
-            File::moveDirectory($temporaryPath, $buildPath);
-
-            return true;
+            return new FrontendPublishResult(
+                success: true,
+                message: 'Published frontend assets to public/build.',
+            );
         } finally {
             if (File::isDirectory($temporaryPath)) {
                 File::deleteDirectory($temporaryPath);
@@ -111,5 +144,46 @@ class FrontendAssetPublisher
         $zip->close();
 
         return $zipPath;
+    }
+
+    private function resolveExtractedBuildPath(string $temporaryPath): ?string
+    {
+        if (File::exists($temporaryPath.'/manifest.json')) {
+            return $temporaryPath;
+        }
+
+        $nestedBuildPath = $temporaryPath.'/build';
+
+        if (File::exists($nestedBuildPath.'/manifest.json')) {
+            return $nestedBuildPath;
+        }
+
+        return null;
+    }
+
+    private function swapBuildDirectory(string $sourcePath, string $buildPath): bool
+    {
+        $previousPath = public_path('build-previous-'.uniqid('', true));
+        $hadPreviousBuild = File::isDirectory($buildPath);
+
+        if ($hadPreviousBuild) {
+            if (! @rename($buildPath, $previousPath)) {
+                return false;
+            }
+        }
+
+        if (! @rename($sourcePath, $buildPath)) {
+            if ($hadPreviousBuild && File::isDirectory($previousPath)) {
+                @rename($previousPath, $buildPath);
+            }
+
+            return false;
+        }
+
+        if ($hadPreviousBuild && File::isDirectory($previousPath)) {
+            File::deleteDirectory($previousPath);
+        }
+
+        return File::exists($buildPath.'/manifest.json');
     }
 }
