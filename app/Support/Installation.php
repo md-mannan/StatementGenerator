@@ -39,6 +39,14 @@ class Installation
         }
 
         if (config('app.installed') === true) {
+            self::ensureMarkerExists();
+
+            return true;
+        }
+
+        if (filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN)) {
+            self::ensureMarkerExists();
+
             return true;
         }
 
@@ -116,16 +124,38 @@ class Installation
 
     private static function scheduleInstalledFlagInEnvironment(): void
     {
-        if (app()->runningUnitTests() || config('app.installed') !== true) {
+        if (app()->runningUnitTests()) {
             return;
         }
 
-        app()->terminating(function (): void {
-            if (filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN)) {
-                return;
-            }
+        if (self::shouldDeferEnvWrite()) {
+            app()->terminating(function (): void {
+                self::persistInstalledFlagInEnvironment();
+            });
 
-            app(EnvFile::class)->update(['APP_INSTALLED' => 'true']);
-        });
+            return;
+        }
+
+        self::persistInstalledFlagInEnvironment();
+    }
+
+    private static function persistInstalledFlagInEnvironment(): void
+    {
+        if (filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN)) {
+            return;
+        }
+
+        app(EnvFile::class)->update(['APP_INSTALLED' => 'true']);
+
+        $configCachePath = base_path('bootstrap/cache/config.php');
+
+        if (File::exists($configCachePath)) {
+            File::delete($configCachePath);
+        }
+    }
+
+    private static function shouldDeferEnvWrite(): bool
+    {
+        return PHP_SAPI === 'cli-server';
     }
 }

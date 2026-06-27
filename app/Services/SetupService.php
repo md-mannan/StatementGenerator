@@ -66,6 +66,8 @@ class SetupService
         }
 
         if (User::query()->where('email', $data['email'])->exists()) {
+            $this->finalizeInstallation($envValues);
+
             throw ValidationException::withMessages([
                 'email' => 'An account with this email already exists. Sign in instead.',
             ]);
@@ -78,11 +80,7 @@ class SetupService
             'email_verified_at' => now(),
         ]);
 
-        Installation::markInstalled();
-
-        if (! app()->runningUnitTests()) {
-            $this->scheduleEnvironmentPersistence($envValues);
-        }
+        $this->finalizeInstallation($envValues);
 
         Auth::login($user);
 
@@ -117,19 +115,41 @@ class SetupService
     }
 
     /**
-     * Write .env after the HTTP response is sent so php artisan serve does not
-     * reset the connection mid-install.
-     *
      * @param  array<string, string|null>  $envValues
      */
-    private function scheduleEnvironmentPersistence(array $envValues): void
+    private function finalizeInstallation(array $envValues): void
     {
-        app()->terminating(function () use ($envValues): void {
-            $this->persistEnvironment([
-                ...$envValues,
-                'APP_INSTALLED' => 'true',
-            ]);
-        });
+        Installation::markInstalled();
+
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
+        $this->persistEnvironmentAfterInstall($envValues);
+    }
+
+    /**
+     * @param  array<string, string|null>  $envValues
+     */
+    private function persistEnvironmentAfterInstall(array $envValues): void
+    {
+        $values = [
+            ...$envValues,
+            'APP_INSTALLED' => 'true',
+        ];
+
+        if ($this->shouldDeferEnvWrite()) {
+            app()->terminating(fn () => $this->persistEnvironment($values));
+
+            return;
+        }
+
+        $this->persistEnvironment($values);
+    }
+
+    private function shouldDeferEnvWrite(): bool
+    {
+        return PHP_SAPI === 'cli-server';
     }
 
     /**
@@ -155,16 +175,24 @@ class SetupService
      */
     private function applyRuntimeConfiguration(array $data): void
     {
-        config([
+        $appUrl = rtrim((string) $data['app_url'], '/');
+
+        $runtimeConfig = [
             'app.name' => (string) $data['app_name'],
-            'app.url' => rtrim((string) $data['app_url'], '/'),
+            'app.url' => $appUrl,
             'app.installed' => true,
             'database.connections.mysql.host' => (string) $data['db_host'],
             'database.connections.mysql.port' => (string) $data['db_port'],
             'database.connections.mysql.database' => (string) $data['db_database'],
             'database.connections.mysql.username' => (string) $data['db_username'],
             'database.connections.mysql.password' => (string) ($data['db_password'] ?? ''),
-        ]);
+        ];
+
+        if (str_starts_with($appUrl, 'https://')) {
+            $runtimeConfig['session.secure'] = true;
+        }
+
+        config($runtimeConfig);
     }
 
     private function assertRequirementsMet(): void
