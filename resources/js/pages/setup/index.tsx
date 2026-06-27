@@ -64,13 +64,10 @@ function RequirementRow({ item }: { item: RequirementItem }) {
     );
 }
 
-function readCsrfToken(): string {
-    return (
-        document
-            .querySelector('meta[name="csrf-token"]')
-            ?.getAttribute('content') ?? ''
-    );
-}
+type SetupFlash = {
+    setupDatabaseTested?: boolean;
+    setupDatabaseMessage?: string;
+};
 
 export default function SetupIndex({ requirements, defaults, passwordRules }: Props) {
     const [step, setStep] = useState<StepId>('requirements');
@@ -79,7 +76,6 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
         null,
     );
     const [databaseTestFailed, setDatabaseTestFailed] = useState(false);
-    const [testingDatabase, setTestingDatabase] = useState(false);
 
     const form = useForm({
         db_host: defaults.db_host,
@@ -125,65 +121,40 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
         }
     };
 
-    const testDatabase = async () => {
-        setTestingDatabase(true);
+    const testDatabase = () => {
         setDatabaseTested(false);
         setDatabaseTestFailed(false);
         setDatabaseTestMessage(null);
-        form.clearErrors('db_host', 'db_port', 'db_database', 'db_username', 'db_password', 'db_connection');
 
-        try {
-            const response = await fetch('/setup/database/test', {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': readCsrfToken(),
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify({
-                    db_host: form.data.db_host,
-                    db_port: form.data.db_port,
-                    db_database: form.data.db_database,
-                    db_username: form.data.db_username,
-                    db_password: form.data.db_password,
-                }),
-            });
+        form.post('/setup/database/test', {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                const flash = page.props.flash as SetupFlash | undefined;
+                const hasErrors = Object.keys(page.props.errors ?? {}).length > 0;
 
-            const payload = (await response.json()) as {
-                message?: string;
-                errors?: Record<string, string[]>;
-            };
-
-            if (! response.ok) {
-                setDatabaseTestFailed(true);
-                setDatabaseTestMessage(
-                    payload.message ??
-                        'Could not connect to the database. Check your credentials and try again.',
-                );
-
-                if (payload.errors) {
-                    Object.entries(payload.errors).forEach(([field, messages]) => {
-                        form.setError(field as keyof typeof form.data, messages[0] ?? '');
-                    });
+                if (hasErrors || flash?.setupDatabaseTested !== true) {
+                    return;
                 }
 
-                return;
-            }
-
-            setDatabaseTested(true);
-            setDatabaseTestMessage(
-                payload.message ?? 'Database connection successful.',
-            );
-        } catch {
-            setDatabaseTestFailed(true);
-            setDatabaseTestMessage(
-                'Could not reach the server to test the database connection.',
-            );
-        } finally {
-            setTestingDatabase(false);
-        }
+                setDatabaseTested(true);
+                setDatabaseTestFailed(false);
+                setDatabaseTestMessage(
+                    flash.setupDatabaseMessage ??
+                        'Database connection successful.',
+                );
+            },
+            onError: (errors) => {
+                setDatabaseTested(false);
+                setDatabaseTestFailed(true);
+                setDatabaseTestMessage(
+                    errors.db_password ??
+                        errors.db_database ??
+                        errors.db_connection ??
+                        'Could not connect to the database. Check your credentials and try again.',
+                );
+            },
+        });
     };
 
     const install = () => {
@@ -363,10 +334,10 @@ export default function SetupIndex({ requirements, defaults, passwordRules }: Pr
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            onClick={() => void testDatabase()}
-                                            disabled={testingDatabase}
+                                            onClick={testDatabase}
+                                            disabled={form.processing}
                                         >
-                                            {testingDatabase && <Spinner />}
+                                            {form.processing && <Spinner />}
                                             Test connection
                                         </Button>
                                         {databaseTested && databaseTestMessage && (
