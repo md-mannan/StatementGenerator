@@ -59,8 +59,8 @@ return [
     | Application Installed
     |--------------------------------------------------------------------------
     |
-    | Set to true after the web setup wizard completes. Used to detect whether
-    | the application has been installed on production hosts.
+    | Mirror of setup completion written to .env after install. Do not set this
+    | to true manually — use storage/app/installed as the source of truth.
     |
     */
 

@@ -38,24 +38,11 @@ class Installation
             return true;
         }
 
-        if (config('app.installed') === true) {
-            self::ensureMarkerExists();
-
-            return true;
-        }
-
-        if (filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN)) {
-            self::ensureMarkerExists();
-
-            return true;
-        }
-
         return self::detectLegacyInstallation();
     }
 
     /**
-     * Ensure storage/app/installed exists whenever the app is already installed.
-     * Runs automatically on each web request until the marker file is present.
+     * Keep installation state consistent on each web request.
      */
     public static function syncMarker(): void
     {
@@ -64,16 +51,20 @@ class Installation
         }
 
         if (File::exists(self::markerPath())) {
-            return;
-        }
-
-        if (config('app.installed') === true) {
-            self::ensureMarkerExists();
+            if (! self::envFlagIsTrue()) {
+                self::writeInstalledFlagToEnvironment(true);
+            }
 
             return;
         }
 
-        self::detectLegacyInstallation();
+        if (self::detectLegacyInstallation()) {
+            return;
+        }
+
+        if (self::envFlagIsTrue()) {
+            self::resetInstalledFlagInEnvironment();
+        }
     }
 
     public static function markInstalled(): void
@@ -89,29 +80,12 @@ class Installation
         config(['app.installed' => true]);
     }
 
-    /**
-     * Create the marker file when the app is already marked installed in .env
-     * or the database, but storage/app/installed is missing.
-     */
-    private static function ensureMarkerExists(): void
-    {
-        if (File::exists(self::markerPath())) {
-            return;
-        }
-
-        try {
-            self::markInstalled();
-        } catch (RuntimeException) {
-            // Config says installed; do not block requests if the marker cannot be written.
-        }
-    }
-
     private static function detectLegacyInstallation(): bool
     {
         try {
             if (User::query()->exists()) {
                 self::markInstalled();
-                self::scheduleInstalledFlagInEnvironment();
+                self::persistInstalledFlagInEnvironment();
 
                 return true;
             }
@@ -122,36 +96,50 @@ class Installation
         return false;
     }
 
-    private static function scheduleInstalledFlagInEnvironment(): void
+    private static function persistInstalledFlagInEnvironment(): void
     {
-        if (app()->runningUnitTests()) {
+        if (app()->runningUnitTests() || self::envFlagIsTrue()) {
             return;
         }
 
         if (self::shouldDeferEnvWrite()) {
-            app()->terminating(function (): void {
-                self::persistInstalledFlagInEnvironment();
-            });
+            app()->terminating(fn () => self::writeInstalledFlagToEnvironment(true));
 
             return;
         }
 
-        self::persistInstalledFlagInEnvironment();
+        self::writeInstalledFlagToEnvironment(true);
     }
 
-    private static function persistInstalledFlagInEnvironment(): void
+    private static function resetInstalledFlagInEnvironment(): void
     {
-        if (filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN)) {
+        config(['app.installed' => false]);
+
+        if (self::shouldDeferEnvWrite()) {
+            app()->terminating(fn () => self::writeInstalledFlagToEnvironment(false));
+
             return;
         }
 
-        app(EnvFile::class)->update(['APP_INSTALLED' => 'true']);
+        self::writeInstalledFlagToEnvironment(false);
+    }
+
+    private static function writeInstalledFlagToEnvironment(bool $installed): void
+    {
+        app(EnvFile::class)->update([
+            'APP_INSTALLED' => $installed ? 'true' : 'false',
+        ]);
 
         $configCachePath = base_path('bootstrap/cache/config.php');
 
         if (File::exists($configCachePath)) {
             File::delete($configCachePath);
         }
+    }
+
+    private static function envFlagIsTrue(): bool
+    {
+        return filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN);
     }
 
     private static function shouldDeferEnvWrite(): bool
