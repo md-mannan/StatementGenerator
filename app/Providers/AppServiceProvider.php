@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\Installation;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureDefaults();
+        Installation::syncMarker();
     }
 
     /**

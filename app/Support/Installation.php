@@ -34,15 +34,38 @@ class Installation
             return ! self::$forceUninstalledForTesting;
         }
 
-        if (config('app.installed') === true) {
-            return true;
-        }
-
         if (File::exists(self::markerPath())) {
             return true;
         }
 
+        if (config('app.installed') === true) {
+            return true;
+        }
+
         return self::detectLegacyInstallation();
+    }
+
+    /**
+     * Ensure storage/app/installed exists whenever the app is already installed.
+     * Runs automatically on each web request until the marker file is present.
+     */
+    public static function syncMarker(): void
+    {
+        if (app()->runningUnitTests() || app()->runningInConsole()) {
+            return;
+        }
+
+        if (File::exists(self::markerPath())) {
+            return;
+        }
+
+        if (config('app.installed') === true) {
+            self::ensureMarkerExists();
+
+            return;
+        }
+
+        self::detectLegacyInstallation();
     }
 
     public static function markInstalled(): void
@@ -58,11 +81,29 @@ class Installation
         config(['app.installed' => true]);
     }
 
+    /**
+     * Create the marker file when the app is already marked installed in .env
+     * or the database, but storage/app/installed is missing.
+     */
+    private static function ensureMarkerExists(): void
+    {
+        if (File::exists(self::markerPath())) {
+            return;
+        }
+
+        try {
+            self::markInstalled();
+        } catch (RuntimeException) {
+            // Config says installed; do not block requests if the marker cannot be written.
+        }
+    }
+
     private static function detectLegacyInstallation(): bool
     {
         try {
             if (User::query()->exists()) {
                 self::markInstalled();
+                self::scheduleInstalledFlagInEnvironment();
 
                 return true;
             }
@@ -71,5 +112,20 @@ class Installation
         }
 
         return false;
+    }
+
+    private static function scheduleInstalledFlagInEnvironment(): void
+    {
+        if (app()->runningUnitTests() || config('app.installed') !== true) {
+            return;
+        }
+
+        app()->terminating(function (): void {
+            if (filter_var(env('APP_INSTALLED', false), FILTER_VALIDATE_BOOLEAN)) {
+                return;
+            }
+
+            app(EnvFile::class)->update(['APP_INSTALLED' => 'true']);
+        });
     }
 }

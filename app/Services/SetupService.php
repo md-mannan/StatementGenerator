@@ -54,10 +54,6 @@ class SetupService
 
         $envValues = $this->buildEnvValues($data);
 
-        if (! app()->runningUnitTests()) {
-            $this->persistEnvironment($envValues);
-        }
-
         $this->applyRuntimeConfiguration($data);
         $this->purgeDatabaseConnection();
 
@@ -84,6 +80,10 @@ class SetupService
 
         Installation::markInstalled();
 
+        if (! app()->runningUnitTests()) {
+            $this->scheduleEnvironmentPersistence($envValues);
+        }
+
         Auth::login($user);
 
         return $user;
@@ -100,7 +100,6 @@ class SetupService
         $values = [
             'APP_NAME' => (string) $data['app_name'],
             'APP_URL' => $appUrl,
-            'APP_INSTALLED' => 'true',
             'VITE_APP_NAME' => (string) $data['app_name'],
             'DB_CONNECTION' => 'mysql',
             'DB_HOST' => (string) $data['db_host'],
@@ -115,6 +114,22 @@ class SetupService
         }
 
         return $values;
+    }
+
+    /**
+     * Write .env after the HTTP response is sent so php artisan serve does not
+     * reset the connection mid-install.
+     *
+     * @param  array<string, string|null>  $envValues
+     */
+    private function scheduleEnvironmentPersistence(array $envValues): void
+    {
+        app()->terminating(function () use ($envValues): void {
+            $this->persistEnvironment([
+                ...$envValues,
+                'APP_INSTALLED' => 'true',
+            ]);
+        });
     }
 
     /**
@@ -133,8 +148,6 @@ class SetupService
         if (blank(config('app.key'))) {
             Artisan::call('key:generate', ['--force' => true]);
         }
-
-        config(['app.installed' => true]);
     }
 
     /**
