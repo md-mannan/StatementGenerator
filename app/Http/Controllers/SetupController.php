@@ -6,6 +6,7 @@ use App\Http\Requests\Setup\InstallApplicationRequest;
 use App\Http\Requests\Setup\TestDatabaseRequest;
 use App\Services\SetupRequirementsChecker;
 use App\Services\SetupService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
@@ -33,14 +34,19 @@ class SetupController extends Controller
     public function testDatabase(
         TestDatabaseRequest $request,
         SetupService $setupService,
-    ): RedirectResponse {
+    ): JsonResponse {
         try {
             $setupService->testDatabaseConnection($request->validated());
         } catch (ValidationException $exception) {
-            return back()->withErrors($exception->errors());
+            return response()->json([
+                'message' => collect($exception->errors())->flatten()->first(),
+                'errors' => $exception->errors(),
+            ], 422);
         }
 
-        return back()->with('setupDatabaseTested', true);
+        return response()->json([
+            'message' => 'Database connection successful.',
+        ]);
     }
 
     public function install(

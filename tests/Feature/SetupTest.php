@@ -37,6 +37,28 @@ it('shows the setup wizard with requirements', function (): void {
             ->where('requirements.ready', true));
 });
 
+it('returns json errors when database connection fails', function (): void {
+    $this->mock(\App\Services\SetupService::class, function ($mock): void {
+        $mock->shouldReceive('testDatabaseConnection')
+            ->once()
+            ->andThrow(\Illuminate\Validation\ValidationException::withMessages([
+                'db_password' => 'Could not connect to the database. Check your host, username, and password.',
+            ]));
+    });
+
+    $this->postJson(route('setup.database.test'), [
+        'db_host' => '127.0.0.1',
+        'db_port' => 3306,
+        'db_database' => 'invalid',
+        'db_username' => 'invalid',
+        'db_password' => 'wrong-password',
+    ])
+        ->assertUnprocessable()
+        ->assertJson([
+            'message' => 'Could not connect to the database. Check your host, username, and password.',
+        ]);
+});
+
 it('rejects invalid install input', function (): void {
     $this->from(route('setup.show'))
         ->post(route('setup.install'), [

@@ -146,8 +146,8 @@ class SetupService
         string $password,
     ): void {
         try {
-            new PDO(
-                "mysql:host={$host};port={$port};dbname={$database}",
+            $connection = new PDO(
+                "mysql:host={$host};port={$port};dbname={$database};charset=utf8mb4",
                 $username,
                 $password,
                 [
@@ -155,8 +155,11 @@ class SetupService
                     PDO::ATTR_TIMEOUT => 5,
                 ],
             );
+
+            $connection->query('SELECT 1');
         } catch (PDOException $exception) {
             throw ValidationException::withMessages([
+                'db_password' => 'Could not connect to the database. Check your host, username, and password.',
                 'db_database' => 'Could not connect to the database. Check your credentials and try again.',
                 'db_connection' => $exception->getMessage(),
             ]);
