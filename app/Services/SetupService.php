@@ -123,6 +123,16 @@ class SetupService
         }
 
         $this->persistEnvironmentAfterInstall($envValues);
+        $this->publishFrontendAssets();
+    }
+
+    private function publishFrontendAssets(): void
+    {
+        try {
+            app(FrontendAssetPublisher::class)->publish(force: true);
+        } catch (\Throwable) {
+            // Install should succeed even when build assets are published separately.
+        }
     }
 
     /**
