@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Middleware\EnsureAppIsInstalled;
 use App\Http\Middleware\HandleAppearance;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RedirectIfInstalled;
+use App\Support\Installation;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,12 +16,28 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function (): void {
+            require __DIR__.'/../routes/setup.php';
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
-        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectGuestsTo(function () {
+            return Installation::isInstalled()
+                ? route('login')
+                : route('setup.show');
+        });
         $middleware->redirectUsersTo(fn () => route('dashboard'));
+
+        $middleware->alias([
+            'installed' => EnsureAppIsInstalled::class,
+            'setup' => RedirectIfInstalled::class,
+        ]);
+
+        $middleware->web(prepend: [
+            EnsureAppIsInstalled::class,
+        ]);
 
         $middleware->web(append: [
             HandleAppearance::class,

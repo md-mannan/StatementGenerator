@@ -62,6 +62,24 @@ A web application for reconciling retail client statements across branch records
 
 ## Installation
 
+### Web setup wizard (recommended)
+
+1. Point your web server document root to the `public` directory.
+2. Visit the application URL in your browser.
+3. If the app is not installed yet, you will be redirected to `/setup`.
+4. Complete the wizard:
+   - **Requirements** — PHP version, extensions, and writable folders
+   - **Database** — connection details with a test button
+   - **Application** — site name and URL
+   - **Administrator** — first user account
+5. After installation, sign in and start using the dashboard.
+
+The installer writes your `.env` file, generates an application key, runs migrations, creates the admin user, and stores a lock file at `storage/app/installed`.
+
+Existing deployments that already have users are detected automatically and skip the wizard.
+
+### Manual setup
+
 1. **Clone the repository** and enter the project directory.
 
 2. **Install PHP dependencies:**
