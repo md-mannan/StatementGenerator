@@ -99,6 +99,7 @@ class SetupService
             'APP_NAME' => (string) $data['app_name'],
             'APP_URL' => $appUrl,
             'VITE_APP_NAME' => (string) $data['app_name'],
+            'SESSION_SECURE_COOKIE' => '',
             'DB_CONNECTION' => 'mysql',
             'DB_HOST' => (string) $data['db_host'],
             'DB_PORT' => (string) $data['db_port'],

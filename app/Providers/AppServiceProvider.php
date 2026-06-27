@@ -16,12 +16,10 @@ use App\Policies\IncomingStatementEntryPolicy;
 use App\Policies\StatementEntryPolicy;
 use App\Support\Installation;
 use Carbon\CarbonImmutable;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -42,7 +40,6 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->registerPolicies();
-        $this->configureSessionAndUrls();
         Installation::syncMarker();
     }
 
@@ -54,27 +51,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(IncomingStatementEntry::class, IncomingStatementEntryPolicy::class);
         Gate::policy(ClientAnnexureEntry::class, ClientAnnexureEntryPolicy::class);
         Gate::policy(ClientAnnexureCheque::class, ClientAnnexureChequePolicy::class);
-    }
-
-    protected function configureSessionAndUrls(): void
-    {
-        if ($this->app->runningInConsole() && ! $this->app->runningUnitTests()) {
-            return;
-        }
-
-        /** @var Request $request */
-        $request = request();
-
-        $isSecure = $request->isSecure()
-            || strtolower((string) $request->header('X-Forwarded-Proto')) === 'https';
-
-        config(['session.secure' => $isSecure]);
-
-        $appUrl = config('app.url');
-
-        if (is_string($appUrl) && str_starts_with($appUrl, 'https://') && $isSecure) {
-            URL::forceScheme('https');
-        }
     }
 
     /**

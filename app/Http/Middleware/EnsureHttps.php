@@ -16,8 +16,7 @@ class EnsureHttps
         $appUrl = config('app.url');
 
         if (
-            ! app()->isProduction()
-            || ! is_string($appUrl)
+            ! is_string($appUrl)
             || ! str_starts_with($appUrl, 'https://')
             || $this->requestIsSecure($request)
         ) {

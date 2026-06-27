@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\ConfigureSessionCookie;
 use App\Http\Middleware\EnsureAppIsInstalled;
 use App\Http\Middleware\EnsureHttps;
 use App\Http\Middleware\HandleAppearance;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
+use Illuminate\Session\Middleware\StartSession;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+
+        $middleware->prependToPriorityList(StartSession::class, ConfigureSessionCookie::class);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
 
