@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Building2, LayoutGrid } from 'lucide-react';
+import { Building2, DatabaseBackup, LayoutGrid } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavMain } from '@/components/nav-main';
 import {
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as clientsIndex } from '@/routes/clients';
+import { edit as editData } from '@/routes/data';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -24,6 +25,11 @@ const mainNavItems: NavItem[] = [
         title: 'Clients',
         href: clientsIndex(),
         icon: Building2,
+    },
+    {
+        title: 'Backup & restore',
+        href: editData(),
+        icon: DatabaseBackup,
     },
 ];
 

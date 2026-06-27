@@ -8,11 +8,11 @@ use App\Models\ClientAnnexureEntry;
 use App\Models\IncomingStatementEntry;
 use App\Models\StatementEntry;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
 use App\Support\StatementAmount;
 use App\Support\StatementDate;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 
 class GlobalSearchService
 {
@@ -470,6 +470,7 @@ class GlobalSearchService
             $this->item('settings-profile', 'Profile', null, 'Settings', route('profile.edit'), 'account profile settings'),
             $this->item('settings-security', 'Security', null, 'Settings', route('security.edit'), 'password passkey security'),
             $this->item('settings-appearance', 'Appearance', null, 'Settings', route('appearance.edit'), 'theme dark light appearance'),
+            $this->item('settings-data', 'Database backup', null, 'Settings', route('data.edit'), 'database backup restore export sql mysqldump'),
         ];
 
         $clients = Client::query()
