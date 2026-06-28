@@ -17,10 +17,6 @@ use Inertia\Response;
 
 class ClientController extends Controller
 {
-    public function __construct(
-        private readonly ClientPageSummaryService $pageSummary,
-    ) {}
-
     public function index(Request $request): Response
     {
         $this->authorize('viewAny', Client::class);
@@ -59,7 +55,7 @@ class ClientController extends Controller
         return to_route('clients.show', $client);
     }
 
-    public function show(Client $client): Response
+    public function show(Client $client, ClientPageSummaryService $pageSummary): Response
     {
         $this->authorize('view', $client);
 
@@ -79,12 +75,12 @@ class ClientController extends Controller
                 'updated_at' => $client->updated_at,
                 'branches' => $this->mapBranches($client),
             ],
-            'summary' => $this->pageSummary->forBranches($client),
+            'summary' => $pageSummary->forBranches($client),
             'branchMonthStats' => $this->branchMonthStats($client->branches->pluck('id')),
         ]);
     }
 
-    public function generateStatement(Client $client): Response
+    public function generateStatement(Client $client, ClientPageSummaryService $pageSummary): Response
     {
         $this->authorize('view', $client);
 
@@ -99,7 +95,7 @@ class ClientController extends Controller
                 'id' => $client->id,
                 'name' => $client->name,
             ],
-            'summary' => $this->pageSummary->forGenerateStatement($client),
+            'summary' => $pageSummary->forGenerateStatement($client),
             'branches' => $client->branches->map(fn ($branch): array => [
                 'id' => $branch->id,
                 'code' => $branch->code,
@@ -196,34 +192,40 @@ class ClientController extends Controller
         $yearExpression = 'COALESCE(IF(transaction_date IS NULL OR CAST(transaction_date AS CHAR) LIKE \'0000-%\', NULL, YEAR(transaction_date)), statement_year)';
         $monthExpression = 'COALESCE(IF(transaction_date IS NULL OR CAST(transaction_date AS CHAR) LIKE \'0000-%\', NULL, MONTH(transaction_date)), statement_month)';
 
-        return StatementEntry::query()
-            ->whereIn('branch_id', $branchIds)
-            ->selectRaw("branch_id, {$yearExpression} AS stat_year, {$monthExpression} AS stat_month, COUNT(*) AS entries_count, SUM(amount) AS total_amount, MAX(created_at) AS last_uploaded_at")
-            ->groupByRaw("branch_id, {$yearExpression}, {$monthExpression}")
-            ->havingRaw('stat_year IS NOT NULL AND stat_month IS NOT NULL AND stat_year > 0 AND stat_month > 0')
-            ->orderByDesc('stat_year')
-            ->orderByDesc('stat_month')
-            ->get()
-            ->map(function ($row): array {
-                $year = (int) $row->stat_year;
-                $month = (int) $row->stat_month;
-                $totalAmount = (float) $row->total_amount;
+        try {
+            return StatementEntry::query()
+                ->whereIn('branch_id', $branchIds)
+                ->selectRaw("branch_id, {$yearExpression} AS stat_year, {$monthExpression} AS stat_month, COUNT(*) AS entries_count, SUM(amount) AS total_amount, MAX(created_at) AS last_uploaded_at")
+                ->groupByRaw("branch_id, {$yearExpression}, {$monthExpression}")
+                ->havingRaw("({$yearExpression}) IS NOT NULL AND ({$monthExpression}) IS NOT NULL AND ({$yearExpression}) > 0 AND ({$monthExpression}) > 0")
+                ->orderByDesc('stat_year')
+                ->orderByDesc('stat_month')
+                ->get()
+                ->map(function ($row): array {
+                    $year = (int) $row->stat_year;
+                    $month = (int) $row->stat_month;
+                    $totalAmount = (float) $row->total_amount;
 
-                return [
-                    'branch_id' => (int) $row->branch_id,
-                    'year' => $year,
-                    'month' => $month,
-                    'label' => Carbon::create($year, $month, 1)->format('F Y'),
-                    'entries_count' => (int) $row->entries_count,
-                    'total_amount' => StatementAmount::format($totalAmount),
-                    'total_amount_value' => $totalAmount,
-                    'last_uploaded_at' => $row->last_uploaded_at
-                        ? Carbon::parse($row->last_uploaded_at)->format('d/m/Y H:i')
-                        : null,
-                ];
-            })
-            ->values()
-            ->all();
+                    return [
+                        'branch_id' => (int) $row->branch_id,
+                        'year' => $year,
+                        'month' => $month,
+                        'label' => Carbon::create($year, $month, 1)->format('F Y'),
+                        'entries_count' => (int) $row->entries_count,
+                        'total_amount' => StatementAmount::format($totalAmount),
+                        'total_amount_value' => $totalAmount,
+                        'last_uploaded_at' => $row->last_uploaded_at
+                            ? Carbon::parse($row->last_uploaded_at)->format('d/m/Y H:i')
+                            : null,
+                    ];
+                })
+                ->values()
+                ->all();
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return $this->branchMonthStatsInMemory($branchIds);
+        }
     }
 
     /**
