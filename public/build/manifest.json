@@ -1,0 +1,827 @@
+{
+  "_app-table.js": {
+    "file": "assets/app-table.js",
+    "name": "app-table",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js"
+    ]
+  },
+  "_badge.js": {
+    "file": "assets/badge.js",
+    "name": "badge",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_checkbox.js": {
+    "file": "assets/checkbox.js",
+    "name": "checkbox",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_confirm.js": {
+    "file": "assets/confirm.js",
+    "name": "confirm",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_duplicate-invoices.js": {
+    "file": "assets/duplicate-invoices.js",
+    "name": "duplicate-invoices"
+  },
+  "_export.js": {
+    "file": "assets/export.js",
+    "name": "export",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "_fonts.css": {
+    "file": "assets/fonts.css",
+    "src": "_fonts.css"
+  },
+  "_icons.js": {
+    "file": "assets/icons.js",
+    "name": "icons",
+    "imports": [
+      "_rolldown-runtime.js"
+    ]
+  },
+  "_input-error.js": {
+    "file": "assets/input-error.js",
+    "name": "input-error",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js"
+    ]
+  },
+  "_instrument-sans-400-normal.woff": {
+    "file": "assets/instrument-sans-400-normal.woff",
+    "src": "_instrument-sans-400-normal.woff"
+  },
+  "_instrument-sans-400-normal.woff2": {
+    "file": "assets/instrument-sans-400-normal.woff2",
+    "src": "_instrument-sans-400-normal.woff2"
+  },
+  "_instrument-sans-400-normal2.woff": {
+    "file": "assets/instrument-sans-400-normal2.woff",
+    "src": "_instrument-sans-400-normal2.woff"
+  },
+  "_instrument-sans-400-normal2.woff2": {
+    "file": "assets/instrument-sans-400-normal2.woff2",
+    "src": "_instrument-sans-400-normal2.woff2"
+  },
+  "_instrument-sans-500-normal.woff": {
+    "file": "assets/instrument-sans-500-normal.woff",
+    "src": "_instrument-sans-500-normal.woff"
+  },
+  "_instrument-sans-500-normal.woff2": {
+    "file": "assets/instrument-sans-500-normal.woff2",
+    "src": "_instrument-sans-500-normal.woff2"
+  },
+  "_instrument-sans-500-normal2.woff": {
+    "file": "assets/instrument-sans-500-normal2.woff",
+    "src": "_instrument-sans-500-normal2.woff"
+  },
+  "_instrument-sans-500-normal2.woff2": {
+    "file": "assets/instrument-sans-500-normal2.woff2",
+    "src": "_instrument-sans-500-normal2.woff2"
+  },
+  "_instrument-sans-600-normal.woff": {
+    "file": "assets/instrument-sans-600-normal.woff",
+    "src": "_instrument-sans-600-normal.woff"
+  },
+  "_instrument-sans-600-normal.woff2": {
+    "file": "assets/instrument-sans-600-normal.woff2",
+    "src": "_instrument-sans-600-normal.woff2"
+  },
+  "_instrument-sans-600-normal2.woff": {
+    "file": "assets/instrument-sans-600-normal2.woff",
+    "src": "_instrument-sans-600-normal2.woff"
+  },
+  "_instrument-sans-600-normal2.woff2": {
+    "file": "assets/instrument-sans-600-normal2.woff2",
+    "src": "_instrument-sans-600-normal2.woff2"
+  },
+  "_label.js": {
+    "file": "assets/label.js",
+    "name": "label",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_page-layout.js": {
+    "file": "assets/page-layout.js",
+    "name": "page-layout"
+  },
+  "_passkey-verify.js": {
+    "file": "assets/passkey-verify.js",
+    "name": "passkey-verify",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "_react.js",
+      "resources/js/app.tsx",
+      "_icons.js",
+      "_input-error.js",
+      "_spinner.js"
+    ]
+  },
+  "_password-input.js": {
+    "file": "assets/password-input.js",
+    "name": "password-input",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_password.js": {
+    "file": "assets/password.js",
+    "name": "password",
+    "imports": [
+      "resources/js/app.tsx",
+      "_confirm.js"
+    ]
+  },
+  "_radix.js": {
+    "file": "assets/radix.js",
+    "name": "radix",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_icons.js"
+    ]
+  },
+  "_react.js": {
+    "file": "assets/react.js",
+    "name": "react",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_icons.js"
+    ]
+  },
+  "_reconciliation-legend.js": {
+    "file": "assets/reconciliation-legend.js",
+    "name": "reconciliation-legend",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_rolldown-runtime.js": {
+    "file": "assets/rolldown-runtime.js",
+    "name": "rolldown-runtime"
+  },
+  "_spinner.js": {
+    "file": "assets/spinner.js",
+    "name": "spinner",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_statement-entry-grid.js": {
+    "file": "assets/statement-entry-grid.js",
+    "name": "statement-entry-grid",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js"
+    ]
+  },
+  "_statement-filter-menus.js": {
+    "file": "assets/statement-filter-menus.js",
+    "name": "statement-filter-menus",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js",
+      "_page-layout.js"
+    ]
+  },
+  "_statements.js": {
+    "file": "assets/statements.js",
+    "name": "statements",
+    "imports": [
+      "resources/js/app.tsx",
+      "_export.js"
+    ]
+  },
+  "_stats-summary-line.js": {
+    "file": "assets/stats-summary-line.js",
+    "name": "stats-summary-line",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js"
+    ]
+  },
+  "_table-sort.js": {
+    "file": "assets/table-sort.js",
+    "name": "table-sort",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js"
+    ]
+  },
+  "_text-link.js": {
+    "file": "assets/text-link.js",
+    "name": "text-link",
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js"
+    ]
+  },
+  "_use-two-factor-auth.js": {
+    "file": "assets/use-two-factor-auth.js",
+    "name": "use-two-factor-auth",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "_utils.js": {
+    "file": "assets/utils.js",
+    "name": "utils"
+  },
+  "_vendor.js": {
+    "file": "assets/vendor.js",
+    "name": "vendor",
+    "imports": [
+      "_rolldown-runtime.js",
+      "_radix.js",
+      "_icons.js"
+    ]
+  },
+  "_verification.js": {
+    "file": "assets/verification.js",
+    "name": "verification",
+    "imports": [
+      "resources/js/app.tsx"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app.css",
+    "name": "app",
+    "names": [
+      "app.css"
+    ],
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.tsx": {
+    "file": "assets/js/app.js",
+    "name": "app",
+    "src": "resources/js/app.tsx",
+    "isEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "_utils.js",
+      "_icons.js"
+    ],
+    "dynamicImports": [
+      "resources/js/pages/auth/confirm-password.tsx",
+      "resources/js/pages/auth/forgot-password.tsx",
+      "resources/js/pages/auth/login.tsx",
+      "resources/js/pages/auth/register.tsx",
+      "resources/js/pages/auth/reset-password.tsx",
+      "resources/js/pages/auth/two-factor-challenge.tsx",
+      "resources/js/pages/auth/verify-email.tsx",
+      "resources/js/pages/clients/annexure/import.tsx",
+      "resources/js/pages/clients/annexure/index.tsx",
+      "resources/js/pages/clients/create.tsx",
+      "resources/js/pages/clients/cross-check/index.tsx",
+      "resources/js/pages/clients/edit.tsx",
+      "resources/js/pages/clients/generate-statement.tsx",
+      "resources/js/pages/clients/index.tsx",
+      "resources/js/pages/clients/invoices/show.tsx",
+      "resources/js/pages/clients/received-statements/import.tsx",
+      "resources/js/pages/clients/received-statements/index.tsx",
+      "resources/js/pages/clients/show.tsx",
+      "resources/js/pages/clients/statement-view.tsx",
+      "resources/js/pages/dashboard.tsx",
+      "resources/js/pages/settings/appearance.tsx",
+      "resources/js/pages/settings/data.tsx",
+      "resources/js/pages/settings/profile.tsx",
+      "resources/js/pages/settings/security.tsx",
+      "resources/js/pages/setup/index.tsx",
+      "resources/js/pages/statements/import.tsx",
+      "resources/js/pages/statements/index.tsx",
+      "resources/js/pages/welcome.tsx"
+    ]
+  },
+  "resources/js/pages/auth/confirm-password.tsx": {
+    "file": "assets/js/pages/auth/confirm-password.js",
+    "name": "confirm-password",
+    "src": "resources/js/pages/auth/confirm-password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js",
+      "_passkey-verify.js",
+      "_password-input.js",
+      "_spinner.js",
+      "_confirm.js"
+    ]
+  },
+  "resources/js/pages/auth/forgot-password.tsx": {
+    "file": "assets/js/pages/auth/forgot-password.js",
+    "name": "forgot-password",
+    "src": "resources/js/pages/auth/forgot-password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_icons.js",
+      "_input-error.js",
+      "_text-link.js",
+      "_password.js"
+    ]
+  },
+  "resources/js/pages/auth/login.tsx": {
+    "file": "assets/js/pages/auth/login.js",
+    "name": "login",
+    "src": "resources/js/pages/auth/login.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_checkbox.js",
+      "_label.js",
+      "_input-error.js",
+      "_passkey-verify.js",
+      "_password-input.js",
+      "_text-link.js",
+      "_spinner.js",
+      "_password.js"
+    ]
+  },
+  "resources/js/pages/auth/register.tsx": {
+    "file": "assets/js/pages/auth/register.js",
+    "name": "register",
+    "src": "resources/js/pages/auth/register.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js",
+      "_password-input.js",
+      "_text-link.js",
+      "_spinner.js"
+    ]
+  },
+  "resources/js/pages/auth/reset-password.tsx": {
+    "file": "assets/js/pages/auth/reset-password.js",
+    "name": "reset-password",
+    "src": "resources/js/pages/auth/reset-password.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js",
+      "_password-input.js",
+      "_spinner.js",
+      "_password.js"
+    ]
+  },
+  "resources/js/pages/auth/two-factor-challenge.tsx": {
+    "file": "assets/js/pages/auth/two-factor-challenge.js",
+    "name": "two-factor-challenge",
+    "src": "resources/js/pages/auth/two-factor-challenge.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_use-two-factor-auth.js",
+      "_icons.js",
+      "_input-error.js"
+    ]
+  },
+  "resources/js/pages/auth/verify-email.tsx": {
+    "file": "assets/js/pages/auth/verify-email.js",
+    "name": "verify-email",
+    "src": "resources/js/pages/auth/verify-email.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_text-link.js",
+      "_spinner.js",
+      "_verification.js"
+    ]
+  },
+  "resources/js/pages/clients/annexure/import.tsx": {
+    "file": "assets/js/pages/clients/annexure/import.js",
+    "name": "import",
+    "src": "resources/js/pages/clients/annexure/import.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js"
+    ]
+  },
+  "resources/js/pages/clients/annexure/index.tsx": {
+    "file": "assets/js/pages/clients/annexure/index.js",
+    "name": "annexure",
+    "src": "resources/js/pages/clients/annexure/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js",
+      "_reconciliation-legend.js",
+      "_input-error.js",
+      "_table-sort.js",
+      "_statement-entry-grid.js",
+      "_statement-filter-menus.js",
+      "_duplicate-invoices.js"
+    ]
+  },
+  "resources/js/pages/clients/create.tsx": {
+    "file": "assets/js/pages/clients/create.js",
+    "name": "create",
+    "src": "resources/js/pages/clients/create.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js"
+    ]
+  },
+  "resources/js/pages/clients/cross-check/index.tsx": {
+    "file": "assets/js/pages/clients/cross-check/index.js",
+    "name": "cross-check",
+    "src": "resources/js/pages/clients/cross-check/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js",
+      "_reconciliation-legend.js",
+      "_table-sort.js",
+      "_statement-filter-menus.js",
+      "_badge.js"
+    ]
+  },
+  "resources/js/pages/clients/edit.tsx": {
+    "file": "assets/js/pages/clients/edit.js",
+    "name": "edit",
+    "src": "resources/js/pages/clients/edit.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js"
+    ]
+  },
+  "resources/js/pages/clients/generate-statement.tsx": {
+    "file": "assets/js/pages/clients/generate-statement.js",
+    "name": "generate-statement",
+    "src": "resources/js/pages/clients/generate-statement.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js",
+      "_statement-filter-menus.js",
+      "_export.js"
+    ]
+  },
+  "resources/js/pages/clients/index.tsx": {
+    "file": "assets/js/pages/clients/index.js",
+    "name": "clients",
+    "src": "resources/js/pages/clients/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_icons.js",
+      "_badge.js",
+      "_page-layout.js"
+    ]
+  },
+  "resources/js/pages/clients/invoices/show.tsx": {
+    "file": "assets/js/pages/clients/invoices/show.js",
+    "name": "show",
+    "src": "resources/js/pages/clients/invoices/show.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js",
+      "_badge.js"
+    ]
+  },
+  "resources/js/pages/clients/received-statements/import.tsx": {
+    "file": "assets/js/pages/clients/received-statements/import.js",
+    "name": "import",
+    "src": "resources/js/pages/clients/received-statements/import.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js"
+    ]
+  },
+  "resources/js/pages/clients/received-statements/index.tsx": {
+    "file": "assets/js/pages/clients/received-statements/index.js",
+    "name": "received-statements",
+    "src": "resources/js/pages/clients/received-statements/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_checkbox.js",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js",
+      "_reconciliation-legend.js",
+      "_input-error.js",
+      "_table-sort.js",
+      "_statement-entry-grid.js",
+      "_statement-filter-menus.js",
+      "_duplicate-invoices.js",
+      "_page-layout.js"
+    ]
+  },
+  "resources/js/pages/clients/show.tsx": {
+    "file": "assets/js/pages/clients/show.js",
+    "name": "show",
+    "src": "resources/js/pages/clients/show.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_app-table.js",
+      "_input-error.js",
+      "_table-sort.js",
+      "_badge.js",
+      "_statements.js"
+    ]
+  },
+  "resources/js/pages/clients/statement-view.tsx": {
+    "file": "assets/js/pages/clients/statement-view.js",
+    "name": "statement-view",
+    "src": "resources/js/pages/clients/statement-view.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_stats-summary-line.js",
+      "_app-table.js",
+      "_reconciliation-legend.js",
+      "_input-error.js",
+      "_table-sort.js",
+      "_statement-filter-menus.js",
+      "_duplicate-invoices.js"
+    ]
+  },
+  "resources/js/pages/dashboard.tsx": {
+    "file": "assets/js/pages/dashboard.js",
+    "name": "dashboard",
+    "src": "resources/js/pages/dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_icons.js",
+      "_app-table.js",
+      "_badge.js",
+      "_page-layout.js",
+      "_statements.js"
+    ]
+  },
+  "resources/js/pages/settings/appearance.tsx": {
+    "file": "assets/js/pages/settings/appearance.js",
+    "name": "appearance",
+    "src": "resources/js/pages/settings/appearance.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_utils.js",
+      "_icons.js"
+    ]
+  },
+  "resources/js/pages/settings/data.tsx": {
+    "file": "assets/js/pages/settings/data.js",
+    "name": "data",
+    "src": "resources/js/pages/settings/data.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_checkbox.js",
+      "_label.js",
+      "_icons.js",
+      "_input-error.js"
+    ]
+  },
+  "resources/js/pages/settings/profile.tsx": {
+    "file": "assets/js/pages/settings/profile.js",
+    "name": "profile",
+    "src": "resources/js/pages/settings/profile.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_icons.js",
+      "_input-error.js",
+      "_password-input.js",
+      "_verification.js"
+    ]
+  },
+  "resources/js/pages/settings/security.tsx": {
+    "file": "assets/js/pages/settings/security.js",
+    "name": "security",
+    "src": "resources/js/pages/settings/security.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "_react.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_utils.js",
+      "_use-two-factor-auth.js",
+      "_icons.js",
+      "_input-error.js",
+      "_password-input.js",
+      "_spinner.js"
+    ]
+  },
+  "resources/js/pages/setup/index.tsx": {
+    "file": "assets/js/pages/setup/index.js",
+    "name": "setup",
+    "src": "resources/js/pages/setup/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_input-error.js",
+      "_password-input.js",
+      "_spinner.js"
+    ]
+  },
+  "resources/js/pages/statements/import.tsx": {
+    "file": "assets/js/pages/statements/import.js",
+    "name": "import",
+    "src": "resources/js/pages/statements/import.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_label.js",
+      "_input-error.js",
+      "_statements.js"
+    ]
+  },
+  "resources/js/pages/statements/index.tsx": {
+    "file": "assets/js/pages/statements/index.js",
+    "name": "statements",
+    "src": "resources/js/pages/statements/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_rolldown-runtime.js",
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx",
+      "_checkbox.js",
+      "_label.js",
+      "_utils.js",
+      "_icons.js",
+      "_stats-summary-line.js",
+      "_app-table.js",
+      "_reconciliation-legend.js",
+      "_input-error.js",
+      "_table-sort.js",
+      "_statement-entry-grid.js",
+      "_statement-filter-menus.js",
+      "_duplicate-invoices.js",
+      "_page-layout.js",
+      "_export.js",
+      "_statements.js"
+    ]
+  },
+  "resources/js/pages/welcome.tsx": {
+    "file": "assets/js/pages/welcome.js",
+    "name": "welcome",
+    "src": "resources/js/pages/welcome.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor.js",
+      "_radix.js",
+      "resources/js/app.tsx"
+    ]
+  }
+}

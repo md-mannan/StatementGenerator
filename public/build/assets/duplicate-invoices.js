@@ -1,0 +1,1 @@
+function e(e,t){return t===`branch-invoice`?`${e.branch_id??e.branch_code??``}:${e.invoice_no}`:e.invoice_no}function t(t,n=`invoice`){let r=new Map;return t.forEach(t=>{let i=e(t,n);r.set(i,(r.get(i)??0)+1)}),new Set([...r.entries()].filter(([,e])=>e>1).map(([e])=>e))}function n(t,n,r=`invoice`){return n.has(e(t,r))}export{n,t};
