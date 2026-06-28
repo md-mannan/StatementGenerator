@@ -1,0 +1,1 @@
+var e=`flex min-w-0 flex-col gap-4 p-3 sm:gap-6 sm:p-4 lg:p-6`,t=`flex min-w-0 items-center gap-2 overflow-x-auto pb-1 scrollbar-thin sm:flex-wrap sm:overflow-visible sm:pb-0`,n=`w-full min-w-0 sm:w-44`;export{e as n,t as r,n as t};
