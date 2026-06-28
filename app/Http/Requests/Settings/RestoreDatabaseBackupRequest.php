@@ -32,9 +32,13 @@ class RestoreDatabaseBackupRequest extends FormRequest
                 return;
             }
 
-            $extension = strtolower($file->getClientOriginalExtension());
+            $filename = strtolower($file->getClientOriginalName());
 
-            if (! in_array($extension, ['sql', 'gz', 'zip'], true)) {
+            $isAllowed = str_ends_with($filename, '.sql.gz')
+                || str_ends_with($filename, '.sql')
+                || str_ends_with($filename, '.zip');
+
+            if (! $isAllowed) {
                 $validator->errors()->add(
                     'backup',
                     'Upload a .sql.gz, .sql, or .zip database backup file.',

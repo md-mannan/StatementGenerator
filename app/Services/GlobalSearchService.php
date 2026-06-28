@@ -470,7 +470,7 @@ class GlobalSearchService
             $this->item('settings-profile', 'Profile', null, 'Settings', route('profile.edit'), 'account profile settings'),
             $this->item('settings-security', 'Security', null, 'Settings', route('security.edit'), 'password passkey security'),
             $this->item('settings-appearance', 'Appearance', null, 'Settings', route('appearance.edit'), 'theme dark light appearance'),
-            $this->item('settings-data', 'Database backup', null, 'Settings', route('data.edit'), 'database backup restore export sql mysqldump'),
+            $this->item('settings-data', 'Database backup', null, 'Settings', route('data.edit'), 'database backup restore export wipe sql mysqldump clear data'),
         ];
 
         $clients = Client::query()

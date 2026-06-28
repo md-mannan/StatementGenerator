@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\RestoreDatabaseBackupRequest;
+use App\Http\Requests\Settings\WipeDatabaseRequest;
 use App\Services\DatabaseBackupService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -51,7 +52,7 @@ class DataController extends Controller
         }
 
         try {
-            $this->backupService->restore($path);
+            $this->backupService->restore($path, $file->getClientOriginalName());
         } catch (InvalidArgumentException|RuntimeException $exception) {
             return back()->withErrors([
                 'backup' => $exception->getMessage(),
@@ -59,16 +60,47 @@ class DataController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
+            $message = trim($exception->getMessage());
+
             return back()->withErrors([
-                'backup' => __('The database could not be restored. Check that the file is a valid backup from this application.'),
+                'backup' => $message !== ''
+                    ? __('Restore failed: :message', ['message' => $message])
+                    : __('The database could not be restored. Check that the file is a valid backup from this application.'),
             ]);
         }
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => __('Database restored successfully.'),
+            'message' => __('Database restored successfully. Please sign in again.'),
         ]);
 
-        return to_route('login');
+        return to_route('login')->with(
+            'status',
+            __('Database restored successfully. Please sign in again.'),
+        );
+    }
+
+    public function wipe(WipeDatabaseRequest $request): RedirectResponse
+    {
+        try {
+            $this->backupService->wipeApplicationData();
+        } catch (RuntimeException $exception) {
+            return back()->withErrors([
+                'wipe' => $exception->getMessage(),
+            ]);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return back()->withErrors([
+                'wipe' => __('Application data could not be cleared. Try again or restore from a backup.'),
+            ]);
+        }
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => __('All application data was cleared. User accounts were kept.'),
+        ]);
+
+        return to_route('data.edit');
     }
 }

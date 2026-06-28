@@ -31,6 +31,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('settings/data/restore', [DataController::class, 'restore'])
         ->middleware(RequirePassword::class)
         ->name('data.restore');
+    Route::post('settings/data/wipe', [DataController::class, 'wipe'])
+        ->middleware(RequirePassword::class)
+        ->name('data.wipe');
 });
 
 Route::get('.well-known/passkey-endpoints', function () {

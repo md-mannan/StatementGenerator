@@ -4,34 +4,60 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
-import type { PreRenderedChunk } from 'rollup';
+import type { PreRenderedAsset, PreRenderedChunk } from 'rollup';
 import { defineConfig } from 'vite';
 
-function entryFileName(chunkInfo: PreRenderedChunk): string {
-    const sourceId = chunkInfo.facadeModuleId?.replace(/\\/g, '/');
+function moduleSourcePath(chunkInfo: PreRenderedChunk): string | undefined {
+    const sourceId = chunkInfo.facadeModuleId ?? chunkInfo.moduleIds.at(-1);
 
-    if (sourceId?.includes('/resources/js/app.tsx')) {
-        return 'assets/js/app.js';
-    }
-
-    return 'assets/[name]-[hash].js';
+    return sourceId?.replace(/\\/g, '/');
 }
 
-function chunkFileName(chunkInfo: PreRenderedChunk): string {
-    const sourceId = chunkInfo.facadeModuleId?.replace(/\\/g, '/');
+function jsOutputPath(chunkInfo: PreRenderedChunk): string {
+    const sourceId = moduleSourcePath(chunkInfo);
 
-    if (sourceId?.includes('/resources/js/pages/')) {
+    if (sourceId?.includes('/resources/js/')) {
         const relativePath = sourceId
             .split('/resources/js/')[1]
             .replace(/\.(tsx|ts|jsx|js)$/, '');
 
-        return `assets/js/${relativePath}-[hash].js`;
+        return `assets/js/${relativePath}.js`;
     }
 
-    return 'assets/[name]-[hash].js';
+    if (sourceId?.includes('/node_modules/')) {
+        const modulePath = sourceId
+            .split('/node_modules/')[1]
+            .replace(/\.(tsx|ts|jsx|js|mjs|cjs)$/, '');
+
+        return `assets/vendor/${modulePath}.js`;
+    }
+
+    return `assets/chunks/${chunkInfo.name}.js`;
+}
+
+function assetOutputPath(assetInfo: PreRenderedAsset): string {
+    const sourcePath = assetInfo.originalFileNames.at(-1)?.replace(/\\/g, '/');
+
+    if (sourcePath?.includes('/resources/css/')) {
+        const relativePath = sourcePath
+            .split('/resources/css/')[1]
+            .replace(/\.css$/, '');
+
+        return `assets/${relativePath}.css`;
+    }
+
+    return `assets/[name][extname]`;
 }
 
 export default defineConfig({
+    server: {
+        host: '127.0.0.1',
+        port: 5173,
+        strictPort: true,
+        hmr: {
+            host: '127.0.0.1',
+        },
+    },
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
@@ -59,9 +85,9 @@ export default defineConfig({
     build: {
         rollupOptions: {
             output: {
-                entryFileNames: entryFileName,
-                chunkFileNames: chunkFileName,
-                assetFileNames: 'assets/[name]-[hash][extname]',
+                entryFileNames: jsOutputPath,
+                chunkFileNames: jsOutputPath,
+                assetFileNames: assetOutputPath,
             },
         },
     },

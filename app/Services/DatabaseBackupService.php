@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -14,11 +15,55 @@ use ZipArchive;
 class DatabaseBackupService
 {
     /**
+     * Application data removed by wipe. Order is child tables first.
+     *
+     * @var list<string>
+     */
+    private const APPLICATION_DATA_TABLES = [
+        'client_annexure_entries',
+        'client_annexure_cheques',
+        'incoming_statement_entries',
+        'statement_entries',
+        'client_annexures',
+        'branches',
+        'clients',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const SYSTEM_TABLES_CLEARED_ON_WIPE = [
+        'cache',
+        'cache_locks',
+        'jobs',
+        'job_batches',
+        'failed_jobs',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    private const PRESERVED_TABLES = [
+        'users',
+        'passkeys',
+        'migrations',
+        'password_reset_tokens',
+        'sessions',
+    ];
+
+    /**
      * @return array{
      *     driver: string,
      *     database: string,
      *     tables: int,
      *     mysqldump_available: bool,
+     *     records: array{
+     *         clients: int,
+     *         branches: int,
+     *         statement_entries: int,
+     *         incoming_statement_entries: int,
+     *         client_annexures: int,
+     *     },
      * }
      */
     public function summary(): array
@@ -31,6 +76,13 @@ class DatabaseBackupService
             'database' => $this->databaseName($connection),
             'tables' => count($this->tableNames($connection)),
             'mysqldump_available' => $driver === 'mysql' && $this->mysqldumpBinary() !== null,
+            'records' => [
+                'clients' => $this->tableCount($connection, 'clients'),
+                'branches' => $this->tableCount($connection, 'branches'),
+                'statement_entries' => $this->tableCount($connection, 'statement_entries'),
+                'incoming_statement_entries' => $this->tableCount($connection, 'incoming_statement_entries'),
+                'client_annexures' => $this->tableCount($connection, 'client_annexures'),
+            ],
         ];
     }
 
@@ -70,9 +122,9 @@ class DatabaseBackupService
         return $path;
     }
 
-    public function restore(string $path): void
+    public function restore(string $path, ?string $originalFilename = null): void
     {
-        $sql = $this->readSqlFromBackup($path);
+        $sql = $this->readSqlFromBackup($path, $originalFilename);
         $connection = DB::connection();
         $driver = $connection->getDriverName();
 
@@ -89,6 +141,49 @@ class DatabaseBackupService
         }
 
         throw new RuntimeException("Database driver [{$driver}] is not supported for restore.");
+    }
+
+    public function wipeApplicationData(): void
+    {
+        $connection = DB::connection();
+        $driver = $connection->getDriverName();
+
+        $this->deleteInvoiceScanFiles();
+
+        if ($driver === 'mysql' || $driver === 'mariadb') {
+            $connection->statement('SET FOREIGN_KEY_CHECKS=0');
+        }
+
+        if ($driver === 'sqlite') {
+            $connection->statement('PRAGMA foreign_keys=OFF');
+        }
+
+        try {
+            foreach ($this->tablesToWipe($connection) as $table) {
+                $connection->table($table)->truncate();
+            }
+        } catch (\Throwable $exception) {
+            throw new RuntimeException(
+                'Failed to clear application data: '.$exception->getMessage(),
+                previous: $exception,
+            );
+        } finally {
+            if ($driver === 'mysql' || $driver === 'mariadb') {
+                $connection->statement('SET FOREIGN_KEY_CHECKS=1');
+            }
+
+            if ($driver === 'sqlite') {
+                $connection->statement('PRAGMA foreign_keys=ON');
+            }
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function tablesPreservedOnWipe(): array
+    {
+        return self::PRESERVED_TABLES;
     }
 
     private function exportMysql(Connection $connection): string
@@ -256,15 +351,8 @@ class DatabaseBackupService
     {
         $priority = [
             'migrations',
-            'users',
-            'clients',
-            'branches',
-            'client_annexures',
-            'client_annexure_cheques',
-            'statement_entries',
-            'incoming_statement_entries',
-            'client_annexure_entries',
-            'passkeys',
+            ...self::PRESERVED_TABLES,
+            ...array_reverse(self::APPLICATION_DATA_TABLES),
         ];
 
         usort($tables, function (string $a, string $b) use ($priority): int {
@@ -341,29 +429,40 @@ class DatabaseBackupService
 
     private function restoreUsingPhp(Connection $connection, string $sql): void
     {
-        $connection->transaction(function () use ($connection, $sql): void {
-            $driver = $connection->getDriverName();
+        $driver = $connection->getDriverName();
 
-            if ($driver === 'mysql' || $driver === 'mariadb') {
-                $connection->statement('SET FOREIGN_KEY_CHECKS=0');
-            }
-
-            if ($driver === 'sqlite') {
+        if ($driver === 'sqlite') {
+            $connection->transaction(function () use ($connection, $sql): void {
                 $connection->statement('PRAGMA foreign_keys=OFF');
-            }
 
+                foreach ($this->parseSqlStatements($sql) as $statement) {
+                    $connection->unprepared($statement.';');
+                }
+
+                $connection->statement('PRAGMA foreign_keys=ON');
+            });
+
+            return;
+        }
+
+        if ($driver === 'mysql' || $driver === 'mariadb') {
+            $connection->statement('SET FOREIGN_KEY_CHECKS=0');
+        }
+
+        try {
             foreach ($this->parseSqlStatements($sql) as $statement) {
                 $connection->unprepared($statement.';');
             }
-
+        } catch (\Throwable $exception) {
+            throw new RuntimeException(
+                'Database restore failed while executing SQL: '.$exception->getMessage(),
+                previous: $exception,
+            );
+        } finally {
             if ($driver === 'mysql' || $driver === 'mariadb') {
                 $connection->statement('SET FOREIGN_KEY_CHECKS=1');
             }
-
-            if ($driver === 'sqlite') {
-                $connection->statement('PRAGMA foreign_keys=ON');
-            }
-        });
+        }
     }
 
     /**
@@ -386,13 +485,13 @@ class DatabaseBackupService
         return $statements;
     }
 
-    private function readSqlFromBackup(string $path): string
+    private function readSqlFromBackup(string $path, ?string $originalFilename = null): string
     {
         if (! File::exists($path)) {
             throw new InvalidArgumentException('The backup file could not be found.');
         }
 
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+        $extension = $this->resolveBackupExtension($path, $originalFilename);
 
         if ($extension === 'gz') {
             $contents = file_get_contents($path);
@@ -425,6 +524,74 @@ class DatabaseBackupService
         }
 
         throw new InvalidArgumentException('Upload a .sql.gz, .sql, or .zip database backup file.');
+    }
+
+    private function resolveBackupExtension(string $path, ?string $originalFilename = null): string
+    {
+        $name = strtolower($originalFilename ?? basename($path));
+
+        if (str_ends_with($name, '.sql.gz')) {
+            return 'gz';
+        }
+
+        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+
+        if (in_array($extension, ['gz', 'zip', 'sql'], true)) {
+            return $extension;
+        }
+
+        $header = @file_get_contents($path, false, null, 0, 2);
+
+        if ($header === "\x1f\x8b") {
+            return 'gz';
+        }
+
+        if ($header === 'PK') {
+            return 'zip';
+        }
+
+        return $extension;
+    }
+
+    private function deleteInvoiceScanFiles(): void
+    {
+        Storage::disk('local')->deleteDirectory('invoice-scans');
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function tablesToWipe(Connection $connection): array
+    {
+        $existingTables = $this->tableNames($connection);
+        $ordered = [...self::APPLICATION_DATA_TABLES, ...self::SYSTEM_TABLES_CLEARED_ON_WIPE];
+        $tablesToWipe = [];
+
+        foreach ($ordered as $table) {
+            if (in_array($table, $existingTables, true)) {
+                $tablesToWipe[] = $table;
+            }
+        }
+
+        foreach ($existingTables as $table) {
+            if (
+                ! in_array($table, self::PRESERVED_TABLES, true)
+                && ! in_array($table, $tablesToWipe, true)
+            ) {
+                $tablesToWipe[] = $table;
+            }
+        }
+
+        return $tablesToWipe;
+    }
+
+    private function tableCount(Connection $connection, string $table): int
+    {
+        if (! in_array($table, $this->tableNames($connection), true)) {
+            return 0;
+        }
+
+        return (int) $connection->table($table)->count();
     }
 
     private function readSqlFromZip(string $path): string

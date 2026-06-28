@@ -1,5 +1,5 @@
 import { Form, Head } from '@inertiajs/react';
-import { DatabaseBackup, Download, Upload } from 'lucide-react';
+import { DatabaseBackup, Download, Trash2, Upload } from 'lucide-react';
 import DataController from '@/actions/App/Http/Controllers/Settings/DataController';
 import Heading from '@/components/heading';
 import InputError from '@/components/input-error';
@@ -21,9 +21,23 @@ type DatabaseSummary = {
     database: string;
     tables: number;
     mysqldump_available: boolean;
+    records: {
+        clients: number;
+        branches: number;
+        statement_entries: number;
+        incoming_statement_entries: number;
+        client_annexures: number;
+    };
 };
 
 export default function DataSettings({ summary }: { summary: DatabaseSummary }) {
+    const totalRecords =
+        summary.records.clients +
+        summary.records.branches +
+        summary.records.statement_entries +
+        summary.records.incoming_statement_entries +
+        summary.records.client_annexures;
+
     return (
         <>
             <Head title="Database backup" />
@@ -34,7 +48,7 @@ export default function DataSettings({ summary }: { summary: DatabaseSummary }) 
                 <Heading
                     variant="small"
                     title="Database backup"
-                    description="Download a complete copy of the entire application database and restore it when needed."
+                    description="Download a complete copy of the entire application database, restore it when needed, or clear application data while keeping user accounts."
                 />
 
                 <Card>
@@ -45,9 +59,10 @@ export default function DataSettings({ summary }: { summary: DatabaseSummary }) 
                         </CardTitle>
                         <CardDescription>
                             {summary.database} ({summary.driver}) with{' '}
-                            {summary.tables} tables.
+                            {summary.tables} tables and {totalRecords} application
+                            records (clients, branches, statements, annexures).
                             {summary.mysqldump_available
-                                ? ' Backups use mysqldump for a full SQL export.'
+                                ? ' Backups use mysqldump for a full SQL export of every table.'
                                 : ' Backups are generated from the application when mysqldump is unavailable.'}
                         </CardDescription>
                     </CardHeader>
@@ -102,14 +117,14 @@ export default function DataSettings({ summary }: { summary: DatabaseSummary }) 
 
                                     <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
                                         <Checkbox
-                                            id="confirm"
+                                            id="restore-confirm"
                                             name="confirm"
                                             value="1"
                                             required
                                         />
                                         <div className="grid gap-1">
                                             <Label
-                                                htmlFor="confirm"
+                                                htmlFor="restore-confirm"
                                                 className="leading-snug"
                                             >
                                                 I understand this will replace
@@ -140,10 +155,107 @@ export default function DataSettings({ summary }: { summary: DatabaseSummary }) 
                     </CardContent>
                 </Card>
 
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Trash2 className="size-5" />
+                            Wipe application data
+                        </CardTitle>
+                        <CardDescription>
+                            Delete all clients, branches, statements, annexures,
+                            and uploaded invoice scans. User accounts, passkeys,
+                            and login sessions are kept. Download a backup first
+                            if you may need to restore this data later.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Form
+                            {...DataController.wipe.form()}
+                            className="space-y-6"
+                        >
+                            {({ processing, errors }) => (
+                                <>
+                                    <div className="rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
+                                        <p className="font-medium text-foreground">
+                                            Current application data
+                                        </p>
+                                        <ul className="mt-2 grid gap-1 sm:grid-cols-2">
+                                            <li>
+                                                {summary.records.clients} clients
+                                            </li>
+                                            <li>
+                                                {summary.records.branches}{' '}
+                                                branches
+                                            </li>
+                                            <li>
+                                                {
+                                                    summary.records
+                                                        .statement_entries
+                                                }{' '}
+                                                statement entries
+                                            </li>
+                                            <li>
+                                                {
+                                                    summary.records
+                                                        .incoming_statement_entries
+                                                }{' '}
+                                                received entries
+                                            </li>
+                                            <li>
+                                                {summary.records.client_annexures}{' '}
+                                                annexures
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div className="flex items-start gap-3 rounded-lg border border-destructive/30 bg-destructive/5 p-4">
+                                        <Checkbox
+                                            id="wipe-confirm"
+                                            name="confirm"
+                                            value="1"
+                                            required
+                                        />
+                                        <div className="grid gap-1">
+                                            <Label
+                                                htmlFor="wipe-confirm"
+                                                className="leading-snug"
+                                            >
+                                                I understand this will permanently
+                                                delete all application data
+                                            </Label>
+                                            <p className="text-sm text-muted-foreground">
+                                                User accounts will remain. You
+                                                can restore everything from a
+                                                backup file using the restore
+                                                form above. Password confirmation
+                                                is required.
+                                            </p>
+                                            <InputError message={errors.confirm} />
+                                            <InputError message={errors.wipe} />
+                                        </div>
+                                    </div>
+
+                                    <Button
+                                        type="submit"
+                                        variant="destructive"
+                                        disabled={
+                                            processing || totalRecords === 0
+                                        }
+                                    >
+                                        {processing
+                                            ? 'Clearing data…'
+                                            : 'Wipe all application data'}
+                                    </Button>
+                                </>
+                            )}
+                        </Form>
+                    </CardContent>
+                </Card>
+
                 <p className="text-sm text-muted-foreground">
                     Store database backups safely. Use them before server moves,
-                    reinstalls, or major upgrades. For cPanel, you can also use
-                    phpMyAdmin export as an extra copy.
+                    reinstalls, major upgrades, or wiping data. For cPanel, you
+                    can also use phpMyAdmin export as an extra copy.
                 </p>
             </div>
         </>
