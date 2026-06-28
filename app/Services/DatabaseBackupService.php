@@ -124,18 +124,24 @@ class DatabaseBackupService
 
     public function restore(string $path, ?string $originalFilename = null): void
     {
+        @set_time_limit(0);
+        ini_set('memory_limit', '512M');
+
         $sql = $this->readSqlFromBackup($path, $originalFilename);
+        $metadata = $this->extractBackupMetadata($sql);
         $connection = DB::connection();
         $driver = $connection->getDriverName();
 
         if ($driver === 'mysql' || $driver === 'mariadb') {
             $this->restoreMysql($connection, $sql);
+            $this->verifyRestoredData($connection, $metadata);
 
             return;
         }
 
         if ($driver === 'sqlite') {
             $this->restoreSqlite($connection, $sql);
+            $this->verifyRestoredData($connection, $metadata);
 
             return;
         }
@@ -237,7 +243,7 @@ class DatabaseBackupService
                 throw new RuntimeException('mysqldump returned an empty backup.');
             }
 
-            return $this->prependHeader($connection, $output);
+            return $this->appendBackupMetadata($connection, $this->prependHeader($connection, $output));
         } finally {
             File::delete($configFile);
         }
@@ -248,9 +254,13 @@ class DatabaseBackupService
         $binary = $this->mysqlBinary();
 
         if ($binary !== null) {
-            $this->restoreMysqlUsingBinary($connection, $binary, $sql);
+            try {
+                $this->restoreMysqlUsingBinary($connection, $binary, $sql);
 
-            return;
+                return;
+            } catch (ProcessFailedException) {
+                // Fall back to PHP restore on hosts where the mysql client is unavailable or misconfigured.
+            }
         }
 
         $this->restoreUsingPhp($connection, $sql);
@@ -260,6 +270,7 @@ class DatabaseBackupService
     {
         $config = $connection->getConfig();
         $configFile = storage_path('app/backups/mysql-'.uniqid('', true).'.cnf');
+        $sqlFile = storage_path('app/backups/restore-'.uniqid('', true).'.sql');
 
         File::put($configFile, implode(PHP_EOL, [
             '[client]',
@@ -269,22 +280,40 @@ class DatabaseBackupService
             'port='.($config['port'] ?? '3306'),
         ]));
 
-        try {
-            $process = new Process([
-                $binary,
-                '--defaults-extra-file='.$configFile,
-                (string) ($config['database'] ?? ''),
-            ]);
+        File::put($sqlFile, $sql);
 
-            $process->setInput($sql);
-            $process->setTimeout(null);
-            $process->run();
+        try {
+            $database = (string) ($config['database'] ?? '');
+
+            if (PHP_OS_FAMILY === 'Windows') {
+                $process = new Process([
+                    $binary,
+                    '--defaults-extra-file='.$configFile,
+                    '--max_allowed_packet=512M',
+                    '--default-character-set=utf8mb4',
+                    $database,
+                ]);
+                $process->setInput($sql);
+                $process->setTimeout(null);
+                $process->run();
+            } else {
+                $process = Process::fromShellCommandline(sprintf(
+                    '%s --defaults-extra-file=%s --max_allowed_packet=512M --default-character-set=utf8mb4 %s < %s',
+                    escapeshellarg($binary),
+                    escapeshellarg($configFile),
+                    escapeshellarg($database),
+                    escapeshellarg($sqlFile),
+                ));
+                $process->setTimeout(null);
+                $process->run();
+            }
 
             if (! $process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
         } finally {
             File::delete($configFile);
+            File::delete($sqlFile);
         }
     }
 
@@ -318,6 +347,8 @@ class DatabaseBackupService
             $lines[] = 'PRAGMA foreign_keys=OFF;';
             $lines[] = '';
         }
+
+        $lines[] = '-- backup-metadata:'.json_encode($this->backupMetadata($connection));
 
         $tables = $this->tableNames($connection);
 
@@ -370,15 +401,58 @@ class DatabaseBackupService
      */
     private function exportTableData(Connection $connection, string $table): array
     {
-        $rows = $connection->table($table)->get();
-
-        if ($rows->isEmpty()) {
+        if ($connection->table($table)->count() === 0) {
             return [];
         }
 
-        $columns = array_keys((array) $rows->first());
-        $columnList = implode(', ', array_map(fn (string $column): string => $this->quoteIdentifier($connection, $column), $columns));
+        $quotedTable = $this->quoteIdentifier($connection, $table);
+        $query = $connection->table($table);
+
+        if ($this->tableHasColumn($connection, $table, 'id')) {
+            $query->orderBy('id');
+        }
+
         $lines = [];
+        $columns = null;
+        $columnList = null;
+        $chunk = [];
+
+        foreach ($query->cursor() as $row) {
+            if ($columns === null) {
+                $columns = array_keys((array) $row);
+                $columnList = implode(', ', array_map(
+                    fn (string $column): string => $this->quoteIdentifier($connection, $column),
+                    $columns,
+                ));
+            }
+
+            $chunk[] = $row;
+
+            if (count($chunk) >= 200) {
+                $lines[] = $this->buildInsertStatement($connection, $quotedTable, $columnList, $columns, $chunk);
+                $chunk = [];
+            }
+        }
+
+        if ($chunk !== []) {
+            $lines[] = $this->buildInsertStatement($connection, $quotedTable, $columnList, $columns, $chunk);
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param  list<string>  $columns
+     * @param  list<object>  $rows
+     */
+    private function buildInsertStatement(
+        Connection $connection,
+        string $quotedTable,
+        string $columnList,
+        array $columns,
+        array $rows,
+    ): string {
+        $valueGroups = [];
 
         foreach ($rows as $row) {
             $values = array_map(
@@ -386,15 +460,15 @@ class DatabaseBackupService
                 $columns,
             );
 
-            $lines[] = sprintf(
-                'INSERT INTO %s (%s) VALUES (%s);',
-                $this->quoteIdentifier($connection, $table),
-                $columnList,
-                implode(', ', $values),
-            );
+            $valueGroups[] = '('.implode(', ', $values).')';
         }
 
-        return $lines;
+        return sprintf(
+            'INSERT INTO %s (%s) VALUES %s;',
+            $quotedTable,
+            $columnList,
+            implode(', ', $valueGroups),
+        );
     }
 
     private function exportTableSchema(Connection $connection, string $table): string
@@ -470,19 +544,206 @@ class DatabaseBackupService
      */
     private function parseSqlStatements(string $sql): array
     {
-        $sql = preg_replace('/^--.*$/m', '', $sql) ?? $sql;
-        $parts = preg_split('/;\s*\n/', $sql) ?: [];
+        $sql = str_replace("\r\n", "\n", $sql);
+        $sql = preg_replace('/^--(?! backup-metadata:).*$/m', '', $sql) ?? $sql;
+        $sql = preg_replace('/^#.*$/m', '', $sql) ?? $sql;
+
         $statements = [];
+        $length = strlen($sql);
+        $buffer = '';
+        $inSingleQuote = false;
+        $inDoubleQuote = false;
+        $inBacktick = false;
+        $escapeNext = false;
 
-        foreach ($parts as $part) {
-            $statement = trim($part);
+        for ($index = 0; $index < $length; $index++) {
+            $character = $sql[$index];
 
-            if ($statement !== '') {
-                $statements[] = $statement;
+            if ($escapeNext) {
+                $buffer .= $character;
+                $escapeNext = false;
+
+                continue;
             }
+
+            if ($inSingleQuote) {
+                $buffer .= $character;
+
+                if ($character === '\\') {
+                    $escapeNext = true;
+                } elseif ($character === "'") {
+                    $inSingleQuote = false;
+                }
+
+                continue;
+            }
+
+            if ($inDoubleQuote) {
+                $buffer .= $character;
+
+                if ($character === '\\') {
+                    $escapeNext = true;
+                } elseif ($character === '"') {
+                    $inDoubleQuote = false;
+                }
+
+                continue;
+            }
+
+            if ($inBacktick) {
+                $buffer .= $character;
+
+                if ($character === '`') {
+                    $inBacktick = false;
+                }
+
+                continue;
+            }
+
+            if ($character === "'") {
+                $inSingleQuote = true;
+                $buffer .= $character;
+
+                continue;
+            }
+
+            if ($character === '"') {
+                $inDoubleQuote = true;
+                $buffer .= $character;
+
+                continue;
+            }
+
+            if ($character === '`') {
+                $inBacktick = true;
+                $buffer .= $character;
+
+                continue;
+            }
+
+            if ($character === ';') {
+                $statement = trim($buffer);
+
+                if ($statement !== '' && ! $this->shouldSkipStatement($statement)) {
+                    $statements[] = $statement;
+                }
+
+                $buffer = '';
+
+                continue;
+            }
+
+            $buffer .= $character;
+        }
+
+        $statement = trim($buffer);
+
+        if ($statement !== '' && ! $this->shouldSkipStatement($statement)) {
+            $statements[] = $statement;
         }
 
         return $statements;
+    }
+
+    private function shouldSkipStatement(string $statement): bool
+    {
+        $normalized = strtoupper(ltrim($statement));
+
+        return str_starts_with($normalized, 'LOCK TABLES')
+            || str_starts_with($normalized, 'UNLOCK TABLES')
+            || str_starts_with($normalized, 'USE ');
+    }
+
+    /**
+     * @return array<string, int>|null
+     */
+    private function extractBackupMetadata(string $sql): ?array
+    {
+        if (! preg_match('/^-- backup-metadata:(.+)$/m', $sql, $matches)) {
+            return null;
+        }
+
+        $metadata = json_decode(trim($matches[1]), true);
+
+        if (! is_array($metadata)) {
+            return null;
+        }
+
+        $counts = [];
+
+        foreach ($metadata as $table => $count) {
+            if (is_string($table) && is_numeric($count)) {
+                $counts[$table] = (int) $count;
+            }
+        }
+
+        return $counts === [] ? null : $counts;
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function backupMetadata(Connection $connection): array
+    {
+        $metadata = [];
+
+        foreach ([
+            'users',
+            'clients',
+            'branches',
+            'statement_entries',
+            'incoming_statement_entries',
+            'client_annexures',
+            'client_annexure_entries',
+            'client_annexure_cheques',
+        ] as $table) {
+            if (in_array($table, $this->tableNames($connection), true)) {
+                $metadata[$table] = $this->tableCount($connection, $table);
+            }
+        }
+
+        return $metadata;
+    }
+
+    /**
+     * @param  array<string, int>|null  $metadata
+     */
+    private function verifyRestoredData(Connection $connection, ?array $metadata): void
+    {
+        if ($metadata === null) {
+            return;
+        }
+
+        $mismatches = [];
+
+        foreach ($metadata as $table => $expectedCount) {
+            if (! in_array($table, $this->tableNames($connection), true)) {
+                continue;
+            }
+
+            $actualCount = $this->tableCount($connection, $table);
+
+            if ($actualCount !== $expectedCount) {
+                $mismatches[] = "{$table} (expected {$expectedCount}, found {$actualCount})";
+            }
+        }
+
+        if ($mismatches !== []) {
+            throw new RuntimeException(
+                'Restore verification failed. Some tables were not fully imported: '.implode(', ', $mismatches).'. '
+                .'Create a fresh backup from Settings → Database backup and try again.',
+            );
+        }
+    }
+
+    private function appendBackupMetadata(Connection $connection, string $sql): string
+    {
+        return rtrim($sql).PHP_EOL.'-- backup-metadata:'.json_encode($this->backupMetadata($connection)).PHP_EOL;
+    }
+
+    private function tableHasColumn(Connection $connection, string $table, string $column): bool
+    {
+        return in_array($column, $connection->getSchemaBuilder()->getColumnListing($table), true);
     }
 
     private function readSqlFromBackup(string $path, ?string $originalFilename = null): string

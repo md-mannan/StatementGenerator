@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Client;
+use App\Models\StatementEntry;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -129,6 +130,45 @@ test('users can export and restore a full database backup', function () {
         ->assertSessionHas('status');
 
     expect(Client::query()->where('name', 'Lulu Hyper Market')->exists())->toBeTrue();
+});
+
+test('restore imports statement entries and verifies row counts', function () {
+    $user = User::factory()->create();
+    $client = Client::factory()->forUser($user)->create(['name' => 'Lulu Hyper Market']);
+    $branch = $client->branches()->create(['code' => '01', 'name' => 'Al Rai']);
+
+    StatementEntry::factory()->for($branch)->for($user)->count(5)->create();
+
+    expect(StatementEntry::query()->count())->toBe(5);
+
+    $exportResponse = $this->actingAs($user)->get(route('data.export'));
+    $backupPath = $exportResponse->baseResponse->getFile()->getPathname();
+
+    DB::table('statement_entries')->delete();
+    DB::table('branches')->delete();
+    DB::table('clients')->delete();
+
+    expect(StatementEntry::query()->count())->toBe(0);
+
+    $restorePath = sys_get_temp_dir().'/db-restore-'.uniqid('', true).'.sql.gz';
+    copy($backupPath, $restorePath);
+
+    $this->actingAs($user)
+        ->withSession(['auth.password_confirmed_at' => time()])
+        ->post(route('data.restore'), [
+            'backup' => new UploadedFile(
+                $restorePath,
+                'database-backup.sql.gz',
+                'application/gzip',
+                null,
+                true,
+            ),
+            'confirm' => '1',
+        ])
+        ->assertRedirect(route('login'));
+
+    expect(StatementEntry::query()->count())->toBe(5)
+        ->and(Client::query()->where('name', 'Lulu Hyper Market')->exists())->toBeTrue();
 });
 
 test('restore accepts sql.gz uploads stored without a file extension', function () {
