@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -193,11 +194,18 @@ class ClientController extends Controller
         $monthExpression = 'COALESCE(IF(transaction_date IS NULL OR CAST(transaction_date AS CHAR) LIKE \'0000-%\', NULL, MONTH(transaction_date)), statement_month)';
 
         try {
-            return StatementEntry::query()
+            $subquery = StatementEntry::query()
                 ->whereIn('branch_id', $branchIds)
-                ->selectRaw("branch_id, {$yearExpression} AS stat_year, {$monthExpression} AS stat_month, COUNT(*) AS entries_count, SUM(amount) AS total_amount, MAX(created_at) AS last_uploaded_at")
-                ->groupByRaw("branch_id, {$yearExpression}, {$monthExpression}")
-                ->havingRaw("({$yearExpression}) IS NOT NULL AND ({$monthExpression}) IS NOT NULL AND ({$yearExpression}) > 0 AND ({$monthExpression}) > 0")
+                ->selectRaw("branch_id, amount, created_at, {$yearExpression} AS stat_year, {$monthExpression} AS stat_month");
+
+            return DB::query()
+                ->fromSub($subquery, 'entries_by_period')
+                ->whereNotNull('stat_year')
+                ->whereNotNull('stat_month')
+                ->where('stat_year', '>', 0)
+                ->where('stat_month', '>', 0)
+                ->selectRaw('branch_id, stat_year, stat_month, COUNT(*) AS entries_count, SUM(amount) AS total_amount, MAX(created_at) AS last_uploaded_at')
+                ->groupBy('branch_id', 'stat_year', 'stat_month')
                 ->orderByDesc('stat_year')
                 ->orderByDesc('stat_month')
                 ->get()
