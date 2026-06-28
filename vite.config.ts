@@ -21,7 +21,7 @@ function jsOutputPath(chunkInfo: PreRenderedChunk): string {
             .split('/resources/js/')[1]
             .replace(/\.(tsx|ts|jsx|js)$/, '');
 
-        return `assets/js/${relativePath}.js`;
+        return `assets/js/${relativePath}-[hash].js`;
     }
 
     if (sourceId?.includes('/node_modules/')) {
@@ -29,10 +29,10 @@ function jsOutputPath(chunkInfo: PreRenderedChunk): string {
             .split('/node_modules/')[1]
             .replace(/\.(tsx|ts|jsx|js|mjs|cjs)$/, '');
 
-        return `assets/vendor/${modulePath}.js`;
+        return `assets/vendor/${modulePath}-[hash].js`;
     }
 
-    return `assets/chunks/${chunkInfo.name}.js`;
+    return `assets/chunks/${chunkInfo.name}-[hash].js`;
 }
 
 function assetOutputPath(assetInfo: PreRenderedAsset): string {
@@ -43,10 +43,10 @@ function assetOutputPath(assetInfo: PreRenderedAsset): string {
             .split('/resources/css/')[1]
             .replace(/\.css$/, '');
 
-        return `assets/${relativePath}.css`;
+        return `assets/${relativePath}-[hash].css`;
     }
 
-    return `assets/[name][extname]`;
+    return `assets/[name]-[hash][extname]`;
 }
 
 export default defineConfig({
