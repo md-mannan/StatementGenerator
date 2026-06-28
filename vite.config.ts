@@ -7,18 +7,28 @@ import { bunny } from 'laravel-vite-plugin/fonts';
 import type { PreRenderedChunk } from 'rollup';
 import { defineConfig } from 'vite';
 
-function jsAssetName(chunkInfo: PreRenderedChunk): string {
+function entryFileName(chunkInfo: PreRenderedChunk): string {
     const sourceId = chunkInfo.facadeModuleId?.replace(/\\/g, '/');
 
-    if (sourceId?.includes('/resources/js/')) {
+    if (sourceId?.includes('/resources/js/app.tsx')) {
+        return 'assets/js/app.js';
+    }
+
+    return 'assets/[name]-[hash].js';
+}
+
+function chunkFileName(chunkInfo: PreRenderedChunk): string {
+    const sourceId = chunkInfo.facadeModuleId?.replace(/\\/g, '/');
+
+    if (sourceId?.includes('/resources/js/pages/')) {
         const relativePath = sourceId
             .split('/resources/js/')[1]
             .replace(/\.(tsx|ts|jsx|js)$/, '');
 
-        return `assets/js/${relativePath}.js`;
+        return `assets/js/${relativePath}-[hash].js`;
     }
 
-    return `assets/${chunkInfo.name}.js`;
+    return 'assets/[name]-[hash].js';
 }
 
 export default defineConfig({
@@ -49,9 +59,9 @@ export default defineConfig({
     build: {
         rollupOptions: {
             output: {
-                entryFileNames: jsAssetName,
-                chunkFileNames: jsAssetName,
-                assetFileNames: 'assets/[name][extname]',
+                entryFileNames: entryFileName,
+                chunkFileNames: chunkFileName,
+                assetFileNames: 'assets/[name]-[hash][extname]',
             },
         },
     },
