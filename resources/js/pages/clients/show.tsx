@@ -1,12 +1,10 @@
-import { Form, Head, Link } from '@inertiajs/react';
-import {
-    FileSpreadsheet,
-    Plus,
-    Search,
-} from 'lucide-react';
+import { Form, Head } from '@inertiajs/react';
+import { Plus, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import BranchController from '@/actions/App/Http/Controllers/BranchController';
+import { BranchMonthRowActions } from '@/components/branch-month-row-actions';
 import InputError from '@/components/input-error';
+import { MobileBranchMonthCard } from '@/components/mobile-branch-month-card';
 import { SortableTableHead } from '@/components/sortable-table-head';
 import {
     AppTable,
@@ -41,8 +39,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { index, show } from '@/routes/clients';
-import { index as statementsIndex } from '@/routes/branches/statements';
-import { importMethod as statementsImport } from '@/routes/branches/statements';
 import {
     compareBooleans,
     compareNumbers,
@@ -312,7 +308,7 @@ export default function ClientsShow({
                             </div>
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button>
+                                    <Button className="w-full sm:w-auto">
                                         <Plus className="size-4" />
                                         Add branch
                                     </Button>
@@ -428,7 +424,7 @@ export default function ClientsShow({
                                         </Select>
                                     )}
                                 </div>
-                                <div className="flex flex-wrap gap-2">
+                                <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
                                     {(
                                         [
                                             ['all', 'All'],
@@ -466,7 +462,33 @@ export default function ClientsShow({
                                 filter.
                             </p>
                         ) : (
-                            <AppTableScroll className="rounded-lg border">
+                            <>
+                                <div className="space-y-3 md:hidden">
+                                    {displayedBranches.map((row) => (
+                                        <MobileBranchMonthCard
+                                            key={row.key}
+                                            row={row}
+                                            onEdit={setEditingBranch}
+                                        />
+                                    ))}
+                                    <div className="rounded-xl border bg-muted/40 p-4 text-sm font-semibold">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <span>
+                                                {hasActiveFilters
+                                                    ? 'Filtered total'
+                                                    : 'Total'}
+                                            </span>
+                                            <span className="font-mono tabular-nums">
+                                                {formatAmount(displayTotals.amount)}
+                                            </span>
+                                        </div>
+                                        <p className="mt-1 text-muted-foreground">
+                                            {displayTotals.entries} entries
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <AppTableScroll className="hidden rounded-lg border md:block">
                                 <AppTable>
                                     <thead>
                                         <tr>
@@ -596,128 +618,11 @@ export default function ClientsShow({
                                                     </Badge>
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <div className="flex justify-end gap-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            asChild={
-                                                                stat !== null &&
-                                                                stat.year > 0 &&
-                                                                stat.month > 0
-                                                            }
-                                                            disabled={
-                                                                stat === null ||
-                                                                stat.year === 0 ||
-                                                                stat.month === 0
-                                                            }
-                                                        >
-                                                            {stat !== null &&
-                                                            stat.year > 0 &&
-                                                            stat.month > 0 ? (
-                                                                <Link
-                                                                    href={statementsIndex(
-                                                                        branch.id,
-                                                                        {
-                                                                            query: {
-                                                                                year: stat.year,
-                                                                                month: stat.month,
-                                                                            },
-                                                                        },
-                                                                    )}
-                                                                >
-                                                                    <FileSpreadsheet className="size-4" />
-                                                                    Statement
-                                                                </Link>
-                                                            ) : (
-                                                                <>
-                                                                    <FileSpreadsheet className="size-4" />
-                                                                    Statement
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            asChild
-                                                        >
-                                                            <Link
-                                                                href={statementsImport(
-                                                                    branch.id,
-                                                                )}
-                                                            >
-                                                                Upload
-                                                            </Link>
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                setEditingBranch(
-                                                                    branch,
-                                                                )
-                                                            }
-                                                        >
-                                                            Edit
-                                                        </Button>
-                                                        <Dialog>
-                                                            <DialogTrigger
-                                                                asChild
-                                                            >
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                >
-                                                                    Delete
-                                                                </Button>
-                                                            </DialogTrigger>
-                                                            <DialogContent>
-                                                                <DialogTitle>
-                                                                    Delete
-                                                                    branch?
-                                                                </DialogTitle>
-                                                                <DialogDescription>
-                                                                    This will
-                                                                    delete all
-                                                                    statement
-                                                                    entries for{' '}
-                                                                    {
-                                                                        branch.name
-                                                                    }
-                                                                    .
-                                                                </DialogDescription>
-                                                                <Form
-                                                                    {...BranchController.destroy.form(
-                                                                        branch.id,
-                                                                    )}
-                                                                >
-                                                                    {({
-                                                                        processing,
-                                                                    }) => (
-                                                                        <DialogFooter className="gap-2">
-                                                                            <DialogClose
-                                                                                asChild
-                                                                            >
-                                                                                <Button variant="secondary">
-                                                                                    Cancel
-                                                                                </Button>
-                                                                            </DialogClose>
-                                                                            <Button
-                                                                                variant="destructive"
-                                                                                disabled={
-                                                                                    processing
-                                                                                }
-                                                                                asChild
-                                                                            >
-                                                                                <button type="submit">
-                                                                                    Delete
-                                                                                </button>
-                                                                            </Button>
-                                                                        </DialogFooter>
-                                                                    )}
-                                                                </Form>
-                                                            </DialogContent>
-                                                        </Dialog>
-                                                    </div>
+                                                    <BranchMonthRowActions
+                                                        branch={branch}
+                                                        stat={stat}
+                                                        onEdit={setEditingBranch}
+                                                    />
                                                 </td>
                                             </tr>
                                             );
@@ -746,6 +651,7 @@ export default function ClientsShow({
                                     </tfoot>
                                 </AppTable>
                             </AppTableScroll>
+                            </>
                         )}
                     </CardContent>
                 </Card>

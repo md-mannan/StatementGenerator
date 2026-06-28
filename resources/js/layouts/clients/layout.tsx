@@ -7,6 +7,10 @@ import {
     preservedTabQuery,
     reconciliationQueryRecord,
 } from '@/lib/reconciliation-url';
+import {
+    clientTabLinkClassName,
+    clientTabNavClassName,
+} from '@/lib/page-layout';
 import { cn, toUrl } from '@/lib/utils';
 import { generateStatement, show } from '@/routes/clients';
 import { index as annexureIndex } from '@/routes/clients/annexure';
@@ -71,7 +75,7 @@ export default function ClientLayout({ children }: PropsWithChildren) {
             )}
 
             {!isInvoicePage && (
-                <nav className="-mx-3 flex gap-1 overflow-x-auto border-b px-3 pb-0 scrollbar-thin sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+                <nav className={cn(clientTabNavClassName, 'mobile-scroll-hint')}>
                     {tabs.map((tab) => {
                         const tabPath = toUrl(tab.href);
                         const isActive = isClientTabActive(tabPath, currentUrl);
@@ -81,7 +85,7 @@ export default function ClientLayout({ children }: PropsWithChildren) {
                                 key={tabPath}
                                 href={tab.href}
                                 className={cn(
-                                    'inline-flex h-9 shrink-0 items-center whitespace-nowrap rounded-t-md border border-b-0 px-3 text-sm font-medium transition-colors sm:px-4',
+                                    clientTabLinkClassName,
                                     isActive
                                         ? 'border-border bg-background text-primary shadow-sm'
                                         : 'border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground',

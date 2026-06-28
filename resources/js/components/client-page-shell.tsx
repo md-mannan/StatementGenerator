@@ -21,6 +21,12 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { mergeReconciliationQuery } from '@/lib/reconciliation-url';
+import {
+    mobileActionGroupClassName,
+    summaryGridClassName,
+    summaryGridWideClassName,
+    summaryStatValueClassName,
+} from '@/lib/page-layout';
 import { cn } from '@/lib/utils';
 import { edit } from '@/routes/clients';
 import { index as crossCheckIndex } from '@/routes/clients/cross-check';
@@ -80,11 +86,11 @@ function SummaryCards({
     switch (summary.context) {
         case 'branches':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className={summaryGridClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branches</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branches}
                             </CardTitle>
                         </CardHeader>
@@ -92,7 +98,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branch months</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branch_months}
                             </CardTitle>
                         </CardHeader>
@@ -103,7 +109,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Total entries</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.entries}
                             </CardTitle>
                         </CardHeader>
@@ -111,7 +117,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branch total amount</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.total_amount}
                             </CardTitle>
                         </CardHeader>
@@ -121,11 +127,11 @@ function SummaryCards({
 
         case 'generate_statement':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className={summaryGridClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branches</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branches}
                             </CardTitle>
                         </CardHeader>
@@ -133,7 +139,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>With statement data</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branches_with_data}
                             </CardTitle>
                         </CardHeader>
@@ -141,7 +147,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Statement months</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.statement_months}
                             </CardTitle>
                         </CardHeader>
@@ -149,7 +155,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Combined total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.total_amount}
                             </CardTitle>
                         </CardHeader>
@@ -159,13 +165,13 @@ function SummaryCards({
 
         case 'received_statements':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className={summaryGridClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>
                                 {summary.period_label}
                             </CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.entries} entries
                             </CardTitle>
                         </CardHeader>
@@ -178,7 +184,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Client total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.client_total}
                             </CardTitle>
                         </CardHeader>
@@ -186,7 +192,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branch total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branch_total}
                             </CardTitle>
                         </CardHeader>
@@ -201,7 +207,7 @@ function SummaryCards({
                         <Card className="h-full border-orange-200/80 dark:border-orange-900/50">
                             <CardHeader className="pb-2">
                                 <CardDescription>Difference</CardDescription>
-                                <CardTitle className="text-2xl">
+                                <CardTitle className={summaryStatValueClassName}>
                                     {summary.difference_total}
                                 </CardTitle>
                             </CardHeader>
@@ -219,13 +225,13 @@ function SummaryCards({
 
         case 'annexure':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div className={summaryGridWideClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>
                                 {summary.period_label}
                             </CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.entries} entries
                             </CardTitle>
                         </CardHeader>
@@ -238,7 +244,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Client total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.client_total}
                             </CardTitle>
                         </CardHeader>
@@ -246,7 +252,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Check total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.check_total}
                             </CardTitle>
                         </CardHeader>
@@ -254,7 +260,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Rebate</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.rebate}
                             </CardTitle>
                         </CardHeader>
@@ -262,7 +268,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Net amount</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.net_amount}
                             </CardTitle>
                         </CardHeader>
@@ -272,11 +278,11 @@ function SummaryCards({
 
         case 'cross_check':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+                <div className={summaryGridWideClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Unique invoices</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.entries}
                             </CardTitle>
                         </CardHeader>
@@ -288,7 +294,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branch total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branch_total}
                             </CardTitle>
                         </CardHeader>
@@ -296,7 +302,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Received total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.received_total}
                             </CardTitle>
                         </CardHeader>
@@ -304,7 +310,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Annexure total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.annexure_total}
                             </CardTitle>
                         </CardHeader>
@@ -319,7 +325,7 @@ function SummaryCards({
                         <Card className="h-full border-primary/20">
                             <CardHeader className="pb-2">
                                 <CardDescription>Reconciliation</CardDescription>
-                                <CardTitle className="text-2xl">
+                                <CardTitle className={summaryStatValueClassName}>
                                     {summary.matched_count} matched
                                 </CardTitle>
                             </CardHeader>
@@ -338,13 +344,13 @@ function SummaryCards({
 
         case 'statement_view':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className={summaryGridClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>
                                 {summary.period_label}
                             </CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.entries} entries
                             </CardTitle>
                         </CardHeader>
@@ -352,7 +358,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branch total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.branch_total}
                             </CardTitle>
                         </CardHeader>
@@ -360,7 +366,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Received total</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.client_total}
                             </CardTitle>
                         </CardHeader>
@@ -368,7 +374,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Difference</CardDescription>
-                            <CardTitle className="text-2xl">
+                            <CardTitle className={summaryStatValueClassName}>
                                 {summary.difference_total}
                             </CardTitle>
                         </CardHeader>
@@ -382,7 +388,7 @@ function SummaryCards({
 
         case 'invoice':
             return (
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className={summaryGridClassName}>
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Branch amount</CardDescription>
@@ -410,7 +416,7 @@ function SummaryCards({
                     <Card>
                         <CardHeader className="pb-2">
                             <CardDescription>Cheque</CardDescription>
-                            <CardTitle className="text-2xl font-mono tabular-nums">
+                            <CardTitle className={cn(summaryStatValueClassName, 'font-mono')}>
                                 {summary.cheque_number ?? '—'}
                             </CardTitle>
                         </CardHeader>
@@ -436,13 +442,13 @@ export function ClientPageShell({
 
     return (
         <>
-            <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <Heading
                     title={client.name}
                     description={summaryDescription(summary)}
                 />
-                <div className="flex flex-wrap gap-2">
-                    <Button variant="outline" asChild>
+                <div className={mobileActionGroupClassName}>
+                    <Button variant="outline" asChild className="w-full sm:w-auto">
                         <Link href={edit(client.id)}>
                             <Pencil className="size-4" />
                             Edit client
@@ -450,7 +456,7 @@ export function ClientPageShell({
                     </Button>
                     <Dialog>
                         <DialogTrigger asChild>
-                            <Button variant="destructive">
+                            <Button variant="destructive" className="w-full sm:w-auto">
                                 <Trash2 className="size-4" />
                                 Delete client
                             </Button>

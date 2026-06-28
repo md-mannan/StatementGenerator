@@ -28,7 +28,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { pageShellClassName } from '@/lib/page-layout';
+import { pageShellClassName, summaryStatValueClassName } from '@/lib/page-layout';
 import { dashboard } from '@/routes';
 import { create, generateStatement, index as clientsIndex, show } from '@/routes/clients';
 import { index as annexureIndex } from '@/routes/clients/annexure';
@@ -56,7 +56,7 @@ function StatCard({
                     <Icon className="size-4 shrink-0" />
                     {title}
                 </CardDescription>
-                <CardTitle className="text-2xl tabular-nums">{value}</CardTitle>
+                <CardTitle className={summaryStatValueClassName}>{value}</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-xs text-muted-foreground">{description}</p>
@@ -78,9 +78,9 @@ export default function Dashboard({
             <Head title="Dashboard" />
 
             <div className={pageShellClassName}>
-                <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight">
+                        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
                             Statement Analyzer
                         </h1>
                         <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
@@ -88,7 +88,7 @@ export default function Dashboard({
                             annexure cheques across all clients in one place.
                         </p>
                     </div>
-                    <Button asChild>
+                    <Button asChild className="w-full sm:w-auto">
                         <Link href={create()}>
                             <Plus className="size-4" />
                             New client
@@ -96,7 +96,7 @@ export default function Dashboard({
                     </Button>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
                     <StatCard
                         title="Clients"
                         value={overview.clients}
