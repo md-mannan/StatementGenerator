@@ -27,6 +27,7 @@ import {
 } from '@/lib/reconciliation-row-status';
 import {
     AppTable,
+    AppTableBodyCell,
     AppTableHeadCell,
     AppTableScroll,
 } from '@/components/app-table';
@@ -913,7 +914,7 @@ export default function ClientsAnnexureIndex({
                                         </p>
                                     ) : (
                                         <AppTableScroll className="rounded-lg border">
-                                            <AppTable className="min-w-[600px]">
+                                            <AppTable className="w-full md:min-w-[600px]">
                                                 <thead>
                                                     <tr className="border-b text-left text-muted-foreground">
                                                         <AppTableHeadCell className="px-4 py-3 font-medium">
@@ -939,7 +940,9 @@ export default function ClientsAnnexureIndex({
                                                             key={cheque.id}
                                                             className="border-b"
                                                         >
-                                                            <td
+                                                            <AppTableBodyCell
+                                                                label="Cheque No"
+                                                                mobile="primary"
                                                                 className="cursor-pointer px-4 py-3 font-medium hover:underline"
                                                                 onClick={() =>
                                                                     cheque.payment_saved
@@ -959,8 +962,9 @@ export default function ClientsAnnexureIndex({
                                                                         In progress
                                                                     </span>
                                                                 )}
-                                                            </td>
-                                                            <td
+                                                            </AppTableBodyCell>
+                                                            <AppTableBodyCell
+                                                                label="Total Amount"
                                                                 className="cursor-pointer px-4 py-3 text-right font-mono"
                                                                 onClick={() =>
                                                                     openCheque(
@@ -971,8 +975,9 @@ export default function ClientsAnnexureIndex({
                                                                 {
                                                                     cheque.amount
                                                                 }
-                                                            </td>
-                                                            <td
+                                                            </AppTableBodyCell>
+                                                            <AppTableBodyCell
+                                                                label="Rebate"
                                                                 className="cursor-pointer px-4 py-3 text-right font-mono"
                                                                 onClick={() =>
                                                                     openCheque(
@@ -981,8 +986,9 @@ export default function ClientsAnnexureIndex({
                                                                 }
                                                             >
                                                                 {cheque.rebate}
-                                                            </td>
-                                                            <td
+                                                            </AppTableBodyCell>
+                                                            <AppTableBodyCell
+                                                                label="Net"
                                                                 className="cursor-pointer px-4 py-3 text-right font-mono"
                                                                 onClick={() =>
                                                                     openCheque(
@@ -993,8 +999,12 @@ export default function ClientsAnnexureIndex({
                                                                 {
                                                                     cheque.net_amount
                                                                 }
-                                                            </td>
-                                                            <td className="px-4 py-3 text-right">
+                                                            </AppTableBodyCell>
+                                                            <AppTableBodyCell
+                                                                label="Actions"
+                                                                mobile="actions"
+                                                                className="px-4 py-3 text-right"
+                                                            >
                                                                 <div className="flex justify-end gap-1">
                                                                     <Button
                                                                         variant="ghost"
@@ -1090,7 +1100,7 @@ export default function ClientsAnnexureIndex({
                                                                     </DialogContent>
                                                                 </Dialog>
                                                                 </div>
-                                                            </td>
+                                                            </AppTableBodyCell>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -1413,7 +1423,7 @@ export default function ClientsAnnexureIndex({
                                 </p>
                             ) : (
                                 <AppTableScroll>
-                                    <AppTable className="min-w-[760px] text-center">
+                                    <AppTable className="w-full md:min-w-[760px] md:text-center">
                                         <thead>
                                             <tr className="border-b text-muted-foreground">
                                                 <AppTableHeadCell className="w-12 px-4 py-2 font-medium">
@@ -1521,21 +1531,32 @@ export default function ClientsAnnexureIndex({
                                                         ),
                                                     )}
                                                 >
-                                                    <td className="px-4 py-2 text-muted-foreground">
+                                                    <AppTableBodyCell
+                                                        label="SI"
+                                                        mobile="skip"
+                                                        className="px-4 py-2 text-muted-foreground"
+                                                    >
                                                         {index + 1}
-                                                    </td>
+                                                    </AppTableBodyCell>
                                                     {multiChequeView && (
-                                                        <td className="px-4 py-2 font-mono">
+                                                        <AppTableBodyCell
+                                                            label="Cheque"
+                                                            className="px-4 py-2 font-mono"
+                                                        >
                                                             {entry.cheque_number ??
                                                                 '—'}
-                                                        </td>
+                                                        </AppTableBodyCell>
                                                     )}
-                                                    <td className="px-4 py-2">
+                                                    <AppTableBodyCell
+                                                        label="Invoice date"
+                                                        className="px-4 py-2"
+                                                    >
                                                         {
                                                             entry.transaction_date
                                                         }
-                                                    </td>
-                                                    <td
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Branch ID"
                                                         className={cn(
                                                             'px-4 py-2',
                                                             !entry.is_resolved &&
@@ -1545,8 +1566,12 @@ export default function ClientsAnnexureIndex({
                                                     >
                                                         {entry.branch_code ??
                                                             '—'}
-                                                    </td>
-                                                    <td className="px-4 py-2">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Invoice"
+                                                        mobile="primary"
+                                                        className="px-4 py-2"
+                                                    >
                                                         <InvoiceNoLink
                                                             clientId={client.id}
                                                             invoiceNo={
@@ -1560,15 +1585,22 @@ export default function ClientsAnnexureIndex({
                                                                 ),
                                                             )}
                                                         />
-                                                    </td>
-                                                    <td className="px-4 py-2 font-mono tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Client Amount"
+                                                        className="px-4 py-2 font-mono tabular-nums"
+                                                    >
                                                         {entry.amount}
-                                                    </td>
-                                                    <td className="px-4 py-2 font-mono tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Branch Amount"
+                                                        className="px-4 py-2 font-mono tabular-nums"
+                                                    >
                                                         {entry.branch_amount ??
                                                             '—'}
-                                                    </td>
-                                                    <td
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Difference"
                                                         className={cn(
                                                             'px-4 py-2 font-mono tabular-nums',
                                                             reconciliationDiffTextClassName(
@@ -1579,10 +1611,14 @@ export default function ClientsAnnexureIndex({
                                                     >
                                                         {entry.difference_amount ??
                                                             '—'}
-                                                    </td>
+                                                    </AppTableBodyCell>
                                                     {canEditEntries && (
-                                                        <td className="px-4 py-2">
-                                                            <div className="flex flex-wrap justify-center gap-1">
+                                                        <AppTableBodyCell
+                                                            label="Actions"
+                                                            mobile="actions"
+                                                            className="px-4 py-2"
+                                                        >
+                                                            <div className="flex flex-nowrap justify-center gap-1">
                                                                 {!entry.is_resolved &&
                                                                     !noBranchExpectedFlag && (
                                                                         <Button
@@ -1696,7 +1732,7 @@ export default function ClientsAnnexureIndex({
                                                                     </DialogContent>
                                                                 </Dialog>
                                                             </div>
-                                                        </td>
+                                                        </AppTableBodyCell>
                                                     )}
                                                 </tr>
                                                 );

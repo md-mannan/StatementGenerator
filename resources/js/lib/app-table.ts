@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-export { stickyTableHeadCellClassName } from '@/components/app-table';
+export { stickyTableHeadCellClassName, AppTableBodyCell } from '@/components/app-table';
 
 /** @deprecated Use `<AppTableScroll>` instead. */
 export function appTableScrollClassName(className?: string): string {

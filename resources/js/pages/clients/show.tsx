@@ -489,7 +489,7 @@ export default function ClientsShow({
                                 </div>
 
                                 <AppTableScroll className="hidden rounded-lg border md:block">
-                                <AppTable>
+                                <AppTable responsive={false}>
                                     <thead>
                                         <tr>
                                             <SortableTableHead

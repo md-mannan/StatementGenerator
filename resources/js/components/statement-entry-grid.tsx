@@ -198,7 +198,7 @@ export function StatementEntryGrid({ rows, onChange, rowErrors = {} }: Props) {
                 className="max-h-[min(70vh,640px)] rounded-sm border border-[#ababab] bg-white shadow-sm dark:border-border dark:bg-background"
                 onPasteCapture={handlePasteCapture}
             >
-                <AppTable className="app-table-spreadsheet w-full border-collapse">
+                <AppTable className="app-table-spreadsheet w-full border-collapse" responsive={false}>
                     <thead>
                         <tr className="bg-[#217346] text-white">
                             <th className="sticky top-0 left-0 z-30 w-10 min-w-10 border border-[#1a5c37] bg-[#217346] px-1 py-2 text-center text-xs font-medium">

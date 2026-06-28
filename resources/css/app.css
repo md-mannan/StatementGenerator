@@ -195,6 +195,182 @@
         }
     }
 
+    @media (max-width: 767px) {
+        .app-table-responsive {
+            min-width: 0 !important;
+            width: 100%;
+            text-align: left;
+        }
+
+        .app-table-responsive thead {
+            display: none;
+        }
+
+        .app-table-responsive tbody {
+            display: block;
+        }
+
+        .app-table-responsive tbody tr {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            background-color: var(--card);
+            box-shadow: 0 1px 2px color-mix(in oklch, var(--foreground) 6%, transparent);
+        }
+
+        .app-table-responsive tbody tr.border-t {
+            border-top: none;
+        }
+
+        .app-table-responsive tbody td {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.625rem 1rem;
+            border: none;
+            text-align: right;
+        }
+
+        .app-table-responsive tbody td::before {
+            content: attr(data-label);
+            flex: 0 0 auto;
+            max-width: 46%;
+            padding-right: 0.5rem;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            text-align: left;
+        }
+
+        .app-table-responsive tbody td .app-table-cell-value {
+            flex: 1 1 0;
+            min-width: 0;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        .app-table-responsive tbody td:not([data-label])::before,
+        .app-table-responsive tbody td[data-label='']::before {
+            display: none;
+        }
+
+        .app-table-responsive tbody td[data-mobile='skip'] {
+            display: none;
+        }
+
+        .app-table-responsive tbody td[data-mobile='primary'] {
+            order: -1;
+            display: block;
+            border-bottom: 1px solid var(--border);
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .app-table-responsive tbody td[data-mobile='primary']::before {
+            display: block;
+            margin-bottom: 0.25rem;
+            max-width: none;
+            padding-right: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            border-top: 1px solid var(--border);
+            margin-top: 0;
+            padding: 0.5rem 1rem;
+            text-align: left;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions']::before {
+            margin-bottom: 0;
+            flex: 0 0 auto;
+            max-width: none;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] .app-table-cell-actions {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] .flex {
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+            gap: 0.25rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] .flex::-webkit-scrollbar {
+            display: none;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] .flex > * {
+            flex: 0 0 auto;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] button,
+        .app-table-responsive tbody td[data-mobile='actions'] a[role='button'],
+        .app-table-responsive tbody td[data-mobile='actions'] .inline-flex {
+            min-height: 2rem;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] .size-9 {
+            height: 2rem;
+            width: 2rem;
+            min-height: 2rem;
+            min-width: 2rem;
+        }
+
+        .app-table-responsive tbody td[data-mobile='actions'] .justify-end,
+        .app-table-responsive tbody td[data-mobile='actions'] .justify-center {
+            justify-content: flex-end;
+        }
+
+        .app-table-responsive tfoot {
+            display: block;
+            margin-top: 0.5rem;
+        }
+
+        .app-table-responsive tfoot tr {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            background-color: color-mix(in oklch, var(--muted) 50%, var(--card));
+            padding: 0.875rem 1rem;
+        }
+
+        .app-table-responsive tfoot td {
+            display: block;
+            padding: 0;
+            border: none;
+            text-align: left;
+        }
+
+        .app-table-responsive tfoot td[colspan] {
+            font-weight: 600;
+        }
+
+        .app-table-responsive tfoot td:empty {
+            display: none;
+        }
+    }
+
     .app-table-spreadsheet thead th {
         background-color: #217346;
         color: white;
@@ -203,6 +379,13 @@
 
     .bg-background .app-table thead th {
         background-color: var(--background);
+    }
+
+    @media (min-width: 768px) {
+        .app-table-cell-value,
+        .app-table-cell-actions {
+            display: contents;
+        }
     }
 }
 

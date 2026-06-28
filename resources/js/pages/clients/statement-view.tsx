@@ -24,6 +24,7 @@ import {
 } from '@/lib/reconciliation-row-status';
 import {
     AppTable,
+    AppTableBodyCell,
     AppTableHeadCell,
     AppTableScroll,
 } from '@/components/app-table';
@@ -622,22 +623,37 @@ export default function ClientsStatementView({
                                                     ),
                                                 )}
                                             >
-                                                <td className="px-4 py-3 text-muted-foreground">
+                                                <AppTableBodyCell
+                                                    label="Sl"
+                                                    mobile="skip"
+                                                    className="px-4 py-3 text-muted-foreground"
+                                                >
                                                     {index + 1}
-                                                </td>
-                                                <td className="px-4 py-3 font-mono">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Branch ID"
+                                                    className="px-4 py-3 font-mono"
+                                                >
                                                     {entry.branch_code}
-                                                </td>
+                                                </AppTableBodyCell>
                                                 {multiplePeriods && (
-                                                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                                                    <AppTableBodyCell
+                                                        label="Month"
+                                                        className="px-4 py-3 text-muted-foreground whitespace-nowrap"
+                                                    >
                                                         {entry.statement_period ??
                                                             '—'}
-                                                    </td>
+                                                    </AppTableBodyCell>
                                                 )}
-                                                <td className="px-4 py-3">
+                                                <AppTableBodyCell
+                                                    label="Date"
+                                                    className="px-4 py-3"
+                                                >
                                                     {entry.transaction_date}
-                                                </td>
-                                                <td
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Invoice No"
+                                                    mobile="primary"
                                                     className={cn(
                                                         'px-4 py-3 font-mono',
                                                         reconciliationInvoiceTextClassName(
@@ -652,18 +668,25 @@ export default function ClientsStatementView({
                                                             entry.invoice_no
                                                         }
                                                     />
-                                                </td>
-                                                <td className="px-4 py-3 text-right">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Amount"
+                                                    className="px-4 py-3 text-right"
+                                                >
                                                     {formatAmount(entry.amount)}
-                                                </td>
-                                                <td className="px-4 py-3 text-right text-muted-foreground">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Client Amount"
+                                                    className="px-4 py-3 text-right text-muted-foreground"
+                                                >
                                                     {entry.client_amount
                                                         ? formatAmount(
                                                               entry.client_amount,
                                                           )
                                                         : '—'}
-                                                </td>
-                                                <td
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Difference"
                                                     className={cn(
                                                         'px-4 py-3 text-right',
                                                         reconciliationDiffTextClassName(
@@ -677,9 +700,13 @@ export default function ClientsStatementView({
                                                               entry.difference_amount,
                                                           )
                                                         : '—'}
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex justify-end gap-2">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Actions"
+                                                    mobile="actions"
+                                                    className="px-4 py-3"
+                                                >
+                                                    <div className="flex flex-nowrap justify-end gap-2">
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -795,7 +822,7 @@ export default function ClientsStatementView({
                                                             </DialogContent>
                                                         </Dialog>
                                                     </div>
-                                                </td>
+                                                </AppTableBodyCell>
                                             </tr>
                                             );
                                         })}

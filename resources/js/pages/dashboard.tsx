@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import {
     AppTable,
+    AppTableBodyCell,
     AppTableHeadCell,
     AppTableScroll,
 } from '@/components/app-table';
@@ -345,7 +346,11 @@ export default function Dashboard({
                                                     key={client.id}
                                                     className="border-t"
                                                 >
-                                                    <td className="px-4 py-3 font-medium">
+                                                    <AppTableBodyCell
+                                                        label="Client"
+                                                        mobile="primary"
+                                                        className="font-medium"
+                                                    >
                                                         <Link
                                                             href={show(
                                                                 client.id,
@@ -354,23 +359,38 @@ export default function Dashboard({
                                                         >
                                                             {client.name}
                                                         </Link>
-                                                    </td>
-                                                    <td className="px-4 py-3 tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Branches"
+                                                        className="tabular-nums"
+                                                    >
                                                         {client.branches_count}
-                                                    </td>
-                                                    <td className="px-4 py-3 tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Branch entries"
+                                                        className="tabular-nums"
+                                                    >
                                                         {client.branch_entries.toLocaleString()}
-                                                    </td>
-                                                    <td className="px-4 py-3 tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Received"
+                                                        className="tabular-nums"
+                                                    >
                                                         {client.received_entries.toLocaleString()}
-                                                    </td>
-                                                    <td className="px-4 py-3 tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Annexure"
+                                                        className="tabular-nums"
+                                                    >
                                                         {client.annexure_entries.toLocaleString()}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-right font-mono tabular-nums">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Branch total"
+                                                        className="text-right font-mono tabular-nums md:text-right"
+                                                    >
                                                         {client.branch_total}
-                                                    </td>
-                                                    <td className="px-4 py-3">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell label="Mismatches">
                                                         {client.mismatch_count >
                                                         0 ? (
                                                             <Badge variant="destructive">
@@ -383,16 +403,23 @@ export default function Dashboard({
                                                                 0
                                                             </Badge>
                                                         )}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Last upload"
+                                                        className="text-sm text-muted-foreground"
+                                                    >
                                                         {client.last_upload_at ??
                                                             '—'}
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex justify-end gap-1">
+                                                    </AppTableBodyCell>
+                                                    <AppTableBodyCell
+                                                        label="Actions"
+                                                        mobile="actions"
+                                                    >
+                                                        <div className="flex justify-end gap-1 md:justify-end">
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
+                                                                className="h-10 w-full sm:h-8 sm:w-auto"
                                                                 asChild
                                                             >
                                                                 <Link
@@ -404,7 +431,7 @@ export default function Dashboard({
                                                                 </Link>
                                                             </Button>
                                                         </div>
-                                                    </td>
+                                                    </AppTableBodyCell>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -499,7 +526,10 @@ export default function Dashboard({
                                                         key={`${upload.branch_id}-${upload.uploaded_at}`}
                                                         className="border-t"
                                                     >
-                                                        <td className="px-4 py-3">
+                                                        <AppTableBodyCell
+                                                            label="Client"
+                                                            mobile="primary"
+                                                        >
                                                             {upload.client_id ? (
                                                                 <Link
                                                                     href={show(
@@ -514,8 +544,8 @@ export default function Dashboard({
                                                             ) : (
                                                                 upload.client_name
                                                             )}
-                                                        </td>
-                                                        <td className="px-4 py-3">
+                                                        </AppTableBodyCell>
+                                                        <AppTableBodyCell label="Branch">
                                                             <span className="font-mono">
                                                                 {
                                                                     upload.branch_code
@@ -526,15 +556,24 @@ export default function Dashboard({
                                                                     upload.branch_name
                                                                 }
                                                             </span>
-                                                        </td>
-                                                        <td className="px-4 py-3 tabular-nums">
+                                                        </AppTableBodyCell>
+                                                        <AppTableBodyCell
+                                                            label="Entries"
+                                                            className="tabular-nums"
+                                                        >
                                                             {upload.entries_count.toLocaleString()}
-                                                        </td>
-                                                        <td className="px-4 py-3 text-sm text-muted-foreground">
+                                                        </AppTableBodyCell>
+                                                        <AppTableBodyCell
+                                                            label="Uploaded"
+                                                            className="text-sm text-muted-foreground"
+                                                        >
                                                             {upload.uploaded_at ??
                                                                 '—'}
-                                                        </td>
-                                                        <td className="px-4 py-3">
+                                                        </AppTableBodyCell>
+                                                        <AppTableBodyCell
+                                                            label="Open"
+                                                            mobile="actions"
+                                                        >
                                                             <div className="flex justify-end gap-1">
                                                                 {upload.branch_id && (
                                                                     <>
@@ -567,7 +606,7 @@ export default function Dashboard({
                                                                     </>
                                                                 )}
                                                             </div>
-                                                        </td>
+                                                        </AppTableBodyCell>
                                                     </tr>
                                                 ))}
                                             </tbody>

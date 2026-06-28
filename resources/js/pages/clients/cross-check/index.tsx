@@ -14,6 +14,7 @@ import {
 import { SortableTableHead } from '@/components/sortable-table-head';
 import {
     AppTable,
+    AppTableBodyCell,
     AppTableHeadCell,
     AppTableScroll,
 } from '@/components/app-table';
@@ -652,13 +653,21 @@ export default function ClientsCrossCheckIndex({
                                                         'ring-1 ring-inset ring-blue-500/20',
                                                 )}
                                             >
-                                                <td className="px-4 py-2.5 text-muted-foreground">
+                                                <AppTableBodyCell
+                                                    label="Sl"
+                                                    mobile="skip"
+                                                    className="px-4 py-2.5 text-muted-foreground"
+                                                >
                                                     {index + 1}
-                                                </td>
-                                                <td className="px-4 py-2.5 whitespace-nowrap">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Invoice month"
+                                                    className="px-4 py-2.5 whitespace-nowrap"
+                                                >
                                                     {row.statement_period}
-                                                </td>
-                                                <td
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Invoice date"
                                                     className={cn(
                                                         'px-4 py-2.5 whitespace-nowrap',
                                                         row.invoice_date_differs_from_period &&
@@ -666,32 +675,57 @@ export default function ClientsCrossCheckIndex({
                                                     )}
                                                 >
                                                     {row.invoice_date ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5 whitespace-nowrap">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Branch"
+                                                    className="px-4 py-2.5 whitespace-nowrap"
+                                                >
                                                     {row.branch_code ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Invoice"
+                                                    mobile="primary"
+                                                    className="px-4 py-2.5"
+                                                >
                                                     <InvoiceNoLink
                                                         clientId={client.id}
                                                         invoiceNo={row.invoice_no}
                                                     />
-                                                </td>
-                                                <td className="px-4 py-2.5 text-right tabular-nums">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Branch amount"
+                                                    className="px-4 py-2.5 text-right tabular-nums"
+                                                >
                                                     {row.branch_amount ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5 text-right tabular-nums">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Received"
+                                                    className="px-4 py-2.5 text-right tabular-nums"
+                                                >
                                                     {row.received_amount ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5 text-right tabular-nums">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Annexure"
+                                                    className="px-4 py-2.5 text-right tabular-nums"
+                                                >
                                                     {row.annexure_amount ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5 whitespace-nowrap">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Cheque"
+                                                    className="px-4 py-2.5 whitespace-nowrap"
+                                                >
                                                     {row.cheque_number ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5 whitespace-nowrap">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Cheque month"
+                                                    className="px-4 py-2.5 whitespace-nowrap"
+                                                >
                                                     {row.cheque_period ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2.5">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Status"
+                                                    className="px-4 py-2.5"
+                                                >
                                                     <Badge
                                                         variant={statusVariant(
                                                             row.status,
@@ -701,7 +735,7 @@ export default function ClientsCrossCheckIndex({
                                                             row.status,
                                                         )}
                                                     </Badge>
-                                                </td>
+                                                </AppTableBodyCell>
                                             </tr>
                                         ))
                                     )}

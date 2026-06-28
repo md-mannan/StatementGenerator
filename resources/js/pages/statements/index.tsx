@@ -37,6 +37,7 @@ import {
 } from '@/lib/page-layout';
 import {
     AppTable,
+    AppTableBodyCell,
     AppTableHeadCell,
     AppTableScroll,
 } from '@/components/app-table';
@@ -943,7 +944,7 @@ export default function StatementsIndex({
                                 )}
 
                             <AppTableScroll>
-                                <AppTable className="min-w-[960px] text-center">
+                                <AppTable className="w-full md:min-w-[960px] md:text-center">
                                     <thead>
                                         <tr className="border-b text-muted-foreground">
                                             <AppTableHeadCell className="px-4 py-2 text-left">
@@ -1076,7 +1077,10 @@ export default function StatementsIndex({
                                                     ),
                                                 )}
                                             >
-                                                <td className="px-4 py-2 text-left">
+                                                <AppTableBodyCell
+                                                    mobile="skip"
+                                                    className="px-4 py-2 text-left"
+                                                >
                                                     <Checkbox
                                                         checked={selectedIds.includes(
                                                             entry.id,
@@ -1092,23 +1096,34 @@ export default function StatementsIndex({
                                                         }
                                                         aria-label={`Select invoice ${entry.invoice_no}`}
                                                     />
-                                                </td>
-                                                <td className="px-4 py-2 text-muted-foreground">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="SI"
+                                                    mobile="skip"
+                                                    className="px-4 py-2 text-muted-foreground"
+                                                >
                                                     {index + 1}
-                                                </td>
+                                                </AppTableBodyCell>
                                                 {multipleBranches && (
-                                                    <td className="px-4 py-2 font-mono">
+                                                    <AppTableBodyCell
+                                                        label="Branch"
+                                                        className="px-4 py-2 font-mono"
+                                                    >
                                                         {entry.branch_code ??
                                                             '—'}
-                                                    </td>
+                                                    </AppTableBodyCell>
                                                 )}
                                                 {multiplePeriods && (
-                                                    <td className="px-4 py-2 text-muted-foreground">
+                                                    <AppTableBodyCell
+                                                        label="Month"
+                                                        className="px-4 py-2 text-muted-foreground"
+                                                    >
                                                         {entry.statement_period ??
                                                             '—'}
-                                                    </td>
+                                                    </AppTableBodyCell>
                                                 )}
-                                                <td
+                                                <AppTableBodyCell
+                                                    label="Invoice Date"
                                                     className={cn(
                                                         'px-4 py-2',
                                                         entry.invoice_date_differs_from_period &&
@@ -1121,8 +1136,10 @@ export default function StatementsIndex({
                                                     }
                                                 >
                                                     {entry.transaction_date}
-                                                </td>
-                                                <td
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Invoice No"
+                                                    mobile="primary"
                                                     className={cn(
                                                         'px-4 py-2 font-mono',
                                                         reconciliationInvoiceTextClassName(
@@ -1137,15 +1154,22 @@ export default function StatementsIndex({
                                                             entry.invoice_no
                                                         }
                                                     />
-                                                </td>
-                                                <td className="px-4 py-2 font-mono tabular-nums">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Branch amount"
+                                                    className="px-4 py-2 font-mono tabular-nums"
+                                                >
                                                     {formatAmount(entry.amount)}
-                                                </td>
-                                                <td className="px-4 py-2 font-mono tabular-nums text-muted-foreground">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Client amount"
+                                                    className="px-4 py-2 font-mono tabular-nums text-muted-foreground"
+                                                >
                                                     {entry.client_statement_amount ??
                                                         '—'}
-                                                </td>
-                                                <td
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Client diff"
                                                     className={cn(
                                                         'px-4 py-2 font-mono tabular-nums',
                                                         reconciliationDiffTextClassName(
@@ -1156,15 +1180,22 @@ export default function StatementsIndex({
                                                 >
                                                     {entry.client_difference_amount ??
                                                         '—'}
-                                                </td>
-                                                <td className="px-4 py-2 font-mono">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Cheque No"
+                                                    className="px-4 py-2 font-mono"
+                                                >
                                                     {entry.cheque_number ?? '—'}
-                                                </td>
-                                                <td className="px-4 py-2 font-mono tabular-nums text-muted-foreground">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Cheque received"
+                                                    className="px-4 py-2 font-mono tabular-nums text-muted-foreground"
+                                                >
                                                     {entry.cheque_received_amount ??
                                                         '—'}
-                                                </td>
-                                                <td
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Cheque diff"
                                                     className={cn(
                                                         'px-4 py-2 font-mono tabular-nums',
                                                         reconciliationDiffTextClassName(
@@ -1175,9 +1206,13 @@ export default function StatementsIndex({
                                                 >
                                                     {entry.difference_amount ??
                                                         '—'}
-                                                </td>
-                                                <td className="px-4 py-2">
-                                                    <div className="flex flex-wrap justify-center gap-1">
+                                                </AppTableBodyCell>
+                                                <AppTableBodyCell
+                                                    label="Actions"
+                                                    mobile="actions"
+                                                    className="px-4 py-2"
+                                                >
+                                                    <div className="flex flex-nowrap justify-end gap-1">
                                                         {!isResolved &&
                                                             !noBillExpectedFlag && (
                                                                 <Button
@@ -1336,7 +1371,7 @@ export default function StatementsIndex({
                                                             </DialogContent>
                                                         </Dialog>
                                                     </div>
-                                                </td>
+                                                </AppTableBodyCell>
                                             </tr>
                                             );
                                         })}

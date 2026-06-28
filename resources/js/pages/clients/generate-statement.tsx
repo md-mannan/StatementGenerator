@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import {
     AppTable,
+    AppTableBodyCell,
     AppTableHeadCell,
     AppTableScroll,
 } from '@/components/app-table';
@@ -640,27 +641,40 @@ export default function ClientsGenerateStatement({
                                                                 key={branch.id}
                                                                 className="border-b last:border-0"
                                                             >
-                                                                <td className="px-3 py-2 font-mono">
+                                                                <AppTableBodyCell
+                                                                    label="Branch ID"
+                                                                    mobile="primary"
+                                                                    className="px-3 py-2 font-mono"
+                                                                >
                                                                     {
                                                                         branch.code
                                                                     }
-                                                                </td>
-                                                                <td className="px-3 py-2">
+                                                                </AppTableBodyCell>
+                                                                <AppTableBodyCell
+                                                                    label="Branch"
+                                                                    className="px-3 py-2"
+                                                                >
                                                                     {
                                                                         branch.name
                                                                     }
-                                                                </td>
-                                                                <td className="px-3 py-2">
+                                                                </AppTableBodyCell>
+                                                                <AppTableBodyCell
+                                                                    label="Entries"
+                                                                    className="px-3 py-2"
+                                                                >
                                                                     {stat?.entries_count ??
                                                                         0}
-                                                                </td>
-                                                                <td className="px-3 py-2 text-right font-mono">
+                                                                </AppTableBodyCell>
+                                                                <AppTableBodyCell
+                                                                    label="Amount"
+                                                                    className="px-3 py-2 text-right font-mono"
+                                                                >
                                                                     {stat
                                                                         ? formatAmount(
                                                                               stat.total_amount,
                                                                           )
                                                                         : '0.000'}
-                                                                </td>
+                                                                </AppTableBodyCell>
                                                             </tr>
                                                         );
                                                     },
