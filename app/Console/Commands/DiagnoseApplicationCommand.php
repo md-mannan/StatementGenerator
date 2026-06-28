@@ -39,37 +39,58 @@ class DiagnoseApplicationCommand extends Command
             return self::FAILURE;
         }
 
-        $logPath = storage_path('logs/laravel.log');
-
-        if (is_file($logPath)) {
-            $this->newLine();
-            $this->info('Last 5 log lines:');
-
-            $handle = fopen($logPath, 'rb');
-
-            if ($handle !== false) {
-                $buffer = '';
-                $chunkSize = 4096;
-
-                fseek($handle, 0, SEEK_END);
-                $position = ftell($handle);
-
-                while ($position > 0 && substr_count($buffer, "\n") <= 5) {
-                    $readSize = min($chunkSize, $position);
-                    $position -= $readSize;
-                    fseek($handle, $position);
-                    $buffer = fread($handle, $readSize).$buffer;
-                }
-
-                fclose($handle);
-
-                collect(preg_split('/\R/', trim($buffer)))
-                    ->filter(fn (string $line): bool => $line !== '')
-                    ->take(-5)
-                    ->each(fn (string $line) => $this->line($line));
-            }
-        }
+        $this->reportRecentLogErrors(storage_path('logs/laravel.log'));
 
         return self::SUCCESS;
+    }
+
+    private function reportRecentLogErrors(string $logPath): void
+    {
+        if (! is_file($logPath)) {
+            return;
+        }
+
+        $handle = fopen($logPath, 'rb');
+
+        if ($handle === false) {
+            return;
+        }
+
+        $chunkSize = 8192;
+        $buffer = '';
+
+        fseek($handle, 0, SEEK_END);
+        $position = ftell($handle);
+
+        while ($position > 0 && strlen($buffer) < 512000) {
+            $readSize = min($chunkSize, $position);
+            $position -= $readSize;
+            fseek($handle, $position);
+            $buffer = fread($handle, $readSize).$buffer;
+        }
+
+        fclose($handle);
+
+        $errorLines = collect(preg_split('/\R/', $buffer))
+            ->filter(fn (string $line): bool => preg_match('/^\[\d{4}-\d{2}-\d{2} .+\.(ERROR|CRITICAL|EMERGENCY|ALERT):/', $line) === 1)
+            ->take(-3)
+            ->values();
+
+        $this->newLine();
+
+        if ($errorLines->isEmpty()) {
+            $this->info('Recent log errors: none found.');
+
+            return;
+        }
+
+        $this->info('Recent log errors:');
+
+        $errorLines->each(function (string $line): void {
+            $message = preg_replace('/^\[\d{4}-\d{2}-\d{2} .+\.(ERROR|CRITICAL|EMERGENCY|ALERT): /', '', $line) ?? $line;
+            $message = preg_split('/\s+\{/', $message, 2)[0] ?? $message;
+
+            $this->line('- '.trim($message));
+        });
     }
 }
