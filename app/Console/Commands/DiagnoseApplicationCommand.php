@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class DiagnoseApplicationCommand extends Command
+
 {
     protected $signature = 'app:diagnose';
 
