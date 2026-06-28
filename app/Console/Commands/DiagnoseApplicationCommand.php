@@ -45,10 +45,29 @@ class DiagnoseApplicationCommand extends Command
             $this->newLine();
             $this->info('Last 5 log lines:');
 
-            $lines = collect(preg_split('/\R/', (string) tail($logPath, 5) ?: ''))
-                ->filter(fn (string $line): bool => $line !== '');
+            $handle = fopen($logPath, 'rb');
 
-            $lines->each(fn (string $line) => $this->line($line));
+            if ($handle !== false) {
+                $buffer = '';
+                $chunkSize = 4096;
+
+                fseek($handle, 0, SEEK_END);
+                $position = ftell($handle);
+
+                while ($position > 0 && substr_count($buffer, "\n") <= 5) {
+                    $readSize = min($chunkSize, $position);
+                    $position -= $readSize;
+                    fseek($handle, $position);
+                    $buffer = fread($handle, $readSize).$buffer;
+                }
+
+                fclose($handle);
+
+                collect(preg_split('/\R/', trim($buffer)))
+                    ->filter(fn (string $line): bool => $line !== '')
+                    ->take(-5)
+                    ->each(fn (string $line) => $this->line($line));
+            }
         }
 
         return self::SUCCESS;
