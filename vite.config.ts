@@ -52,29 +52,6 @@ export default defineConfig({
                 entryFileNames: jsAssetName,
                 chunkFileNames: jsAssetName,
                 assetFileNames: 'assets/[name][extname]',
-                manualChunks(id) {
-                    if (
-                        id.includes('node_modules/react/') ||
-                        id.includes('node_modules/react-dom/') ||
-                        id.includes('node_modules/@inertiajs/react/')
-                    ) {
-                        return 'vendor';
-                    }
-
-                    if (
-                        id.includes('node_modules/@radix-ui/react-dialog/') ||
-                        id.includes('node_modules/@radix-ui/react-dropdown-menu/') ||
-                        id.includes('node_modules/@radix-ui/react-select/') ||
-                        id.includes('node_modules/@radix-ui/react-collapsible/') ||
-                        id.includes('node_modules/@radix-ui/react-slot/')
-                    ) {
-                        return 'radix';
-                    }
-
-                    if (id.includes('node_modules/lucide-react/')) {
-                        return 'icons';
-                    }
-                },
             },
         },
     },

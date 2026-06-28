@@ -3,8 +3,7 @@
     "file": "assets/app-table.js",
     "name": "app-table",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "_utils.js"
     ]
   },
@@ -12,23 +11,29 @@
     "file": "assets/badge.js",
     "name": "badge",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
-      "resources/js/app.tsx",
-      "_utils.js",
-      "_icons.js"
+      "_jsx-runtime.js",
+      "_dist2.js",
+      "_utils.js"
     ]
   },
   "_checkbox.js": {
     "file": "assets/checkbox.js",
     "name": "checkbox",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
-      "_utils.js",
-      "_icons.js"
+      "_jsx-runtime.js",
+      "resources/js/app.tsx",
+      "_dist.js",
+      "_dist2.js",
+      "_dist3.js",
+      "_dist4.js",
+      "_utils.js"
+    ]
+  },
+  "_chevron-down.js": {
+    "file": "assets/chevron-down.js",
+    "name": "chevron-down",
+    "imports": [
+      "_createLucideIcon.js"
     ]
   },
   "_confirm.js": {
@@ -38,9 +43,66 @@
       "resources/js/app.tsx"
     ]
   },
+  "_createLucideIcon.js": {
+    "file": "assets/createLucideIcon.js",
+    "name": "createLucideIcon",
+    "imports": [
+      "_jsx-runtime.js"
+    ]
+  },
+  "_dist.js": {
+    "file": "assets/dist.js",
+    "name": "dist",
+    "imports": [
+      "_jsx-runtime.js"
+    ]
+  },
+  "_dist2.js": {
+    "file": "assets/dist2.js",
+    "name": "dist",
+    "imports": [
+      "_jsx-runtime.js",
+      "_utils.js"
+    ]
+  },
+  "_dist3.js": {
+    "file": "assets/dist3.js",
+    "name": "dist",
+    "imports": [
+      "_jsx-runtime.js",
+      "_dist2.js"
+    ]
+  },
+  "_dist4.js": {
+    "file": "assets/dist4.js",
+    "name": "dist",
+    "imports": [
+      "_jsx-runtime.js"
+    ]
+  },
+  "_download.js": {
+    "file": "assets/download.js",
+    "name": "download",
+    "imports": [
+      "_createLucideIcon.js"
+    ]
+  },
   "_duplicate-invoices.js": {
     "file": "assets/duplicate-invoices.js",
-    "name": "duplicate-invoices"
+    "name": "duplicate-invoices",
+    "imports": [
+      "_createLucideIcon.js"
+    ]
+  },
+  "_es2015.js": {
+    "file": "assets/es2015.js",
+    "name": "es2015",
+    "imports": [
+      "_jsx-runtime.js",
+      "_dist.js",
+      "_dist2.js",
+      "_dist3.js"
+    ]
   },
   "_export.js": {
     "file": "assets/export.js",
@@ -53,19 +115,11 @@
     "file": "assets/fonts.css",
     "src": "_fonts.css"
   },
-  "_icons.js": {
-    "file": "assets/icons.js",
-    "name": "icons",
-    "imports": [
-      "_rolldown-runtime.js"
-    ]
-  },
   "_input-error.js": {
     "file": "assets/input-error.js",
     "name": "input-error",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "_utils.js"
     ]
   },
@@ -117,15 +171,17 @@
     "file": "assets/instrument-sans-600-normal2.woff2",
     "src": "_instrument-sans-600-normal2.woff2"
   },
+  "_jsx-runtime.js": {
+    "file": "assets/jsx-runtime.js",
+    "name": "jsx-runtime"
+  },
   "_label.js": {
     "file": "assets/label.js",
     "name": "label",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
-      "_utils.js",
-      "_icons.js"
+      "_jsx-runtime.js",
+      "_dist3.js",
+      "_utils.js"
     ]
   },
   "_page-layout.js": {
@@ -136,11 +192,9 @@
     "file": "assets/passkey-verify.js",
     "name": "passkey-verify",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
-      "_react.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
-      "_icons.js",
+      "_react.js",
       "_input-error.js",
       "_spinner.js"
     ]
@@ -149,12 +203,10 @@
     "file": "assets/password-input.js",
     "name": "password-input",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js"
+      "_createLucideIcon.js"
     ]
   },
   "_password.js": {
@@ -165,58 +217,63 @@
       "_confirm.js"
     ]
   },
-  "_radix.js": {
-    "file": "assets/radix.js",
-    "name": "radix",
+  "_plus.js": {
+    "file": "assets/plus.js",
+    "name": "plus",
     "imports": [
-      "_rolldown-runtime.js",
-      "_icons.js"
+      "_createLucideIcon.js"
     ]
   },
   "_react.js": {
     "file": "assets/react.js",
     "name": "react",
     "imports": [
-      "_rolldown-runtime.js",
-      "_icons.js"
+      "_jsx-runtime.js",
+      "_createLucideIcon.js"
     ]
   },
   "_reconciliation-legend.js": {
     "file": "assets/reconciliation-legend.js",
     "name": "reconciliation-legend",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js"
+      "_table-sort.js"
     ]
   },
-  "_rolldown-runtime.js": {
-    "file": "assets/rolldown-runtime.js",
-    "name": "rolldown-runtime"
+  "_refresh-cw.js": {
+    "file": "assets/refresh-cw.js",
+    "name": "refresh-cw",
+    "imports": [
+      "_createLucideIcon.js"
+    ]
+  },
+  "_scan-line.js": {
+    "file": "assets/scan-line.js",
+    "name": "scan-line",
+    "imports": [
+      "_createLucideIcon.js"
+    ]
   },
   "_spinner.js": {
     "file": "assets/spinner.js",
     "name": "spinner",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
-      "_utils.js",
-      "_icons.js"
+      "_jsx-runtime.js",
+      "resources/js/app.tsx",
+      "_utils.js"
     ]
   },
   "_statement-entry-grid.js": {
     "file": "assets/statement-entry-grid.js",
     "name": "statement-entry-grid",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js",
+      "_createLucideIcon.js",
+      "_plus.js",
       "_app-table.js"
     ]
   },
@@ -224,12 +281,10 @@
     "file": "assets/statement-filter-menus.js",
     "name": "statement-filter-menus",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js",
+      "_chevron-down.js",
       "_page-layout.js"
     ]
   },
@@ -245,8 +300,7 @@
     "file": "assets/stats-summary-line.js",
     "name": "stats-summary-line",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js"
     ]
@@ -255,10 +309,9 @@
     "file": "assets/table-sort.js",
     "name": "table-sort",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "_utils.js",
-      "_icons.js",
+      "_createLucideIcon.js",
       "_app-table.js"
     ]
   },
@@ -266,35 +319,30 @@
     "file": "assets/text-link.js",
     "name": "text-link",
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "_utils.js"
+    ]
+  },
+  "_upload.js": {
+    "file": "assets/upload.js",
+    "name": "upload",
+    "imports": [
+      "_createLucideIcon.js"
     ]
   },
   "_use-two-factor-auth.js": {
     "file": "assets/use-two-factor-auth.js",
     "name": "use-two-factor-auth",
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js"
+      "_createLucideIcon.js"
     ]
   },
   "_utils.js": {
     "file": "assets/utils.js",
     "name": "utils"
-  },
-  "_vendor.js": {
-    "file": "assets/vendor.js",
-    "name": "vendor",
-    "imports": [
-      "_rolldown-runtime.js",
-      "_radix.js",
-      "_icons.js"
-    ]
   },
   "_verification.js": {
     "file": "assets/verification.js",
@@ -318,11 +366,13 @@
     "src": "resources/js/app.tsx",
     "isEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
+      "_dist.js",
+      "_dist2.js",
+      "_es2015.js",
+      "_dist3.js",
       "_utils.js",
-      "_icons.js"
+      "_createLucideIcon.js"
     ],
     "dynamicImports": [
       "resources/js/pages/auth/confirm-password.tsx",
@@ -361,13 +411,12 @@
     "src": "resources/js/pages/auth/confirm-password.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
+      "_password-input.js",
       "_input-error.js",
       "_passkey-verify.js",
-      "_password-input.js",
       "_spinner.js",
       "_confirm.js"
     ]
@@ -378,11 +427,9 @@
     "src": "resources/js/pages/auth/forgot-password.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
-      "_icons.js",
       "_input-error.js",
       "_text-link.js",
       "_password.js"
@@ -394,14 +441,13 @@
     "src": "resources/js/pages/auth/login.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_checkbox.js",
       "_label.js",
+      "_password-input.js",
       "_input-error.js",
       "_passkey-verify.js",
-      "_password-input.js",
       "_text-link.js",
       "_spinner.js",
       "_password.js"
@@ -413,12 +459,11 @@
     "src": "resources/js/pages/auth/register.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
-      "_input-error.js",
       "_password-input.js",
+      "_input-error.js",
       "_text-link.js",
       "_spinner.js"
     ]
@@ -429,12 +474,11 @@
     "src": "resources/js/pages/auth/reset-password.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
-      "_input-error.js",
       "_password-input.js",
+      "_input-error.js",
       "_spinner.js",
       "_password.js"
     ]
@@ -445,12 +489,9 @@
     "src": "resources/js/pages/auth/two-factor-challenge.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_use-two-factor-auth.js",
-      "_icons.js",
       "_input-error.js"
     ]
   },
@@ -460,8 +501,7 @@
     "src": "resources/js/pages/auth/verify-email.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_text-link.js",
       "_spinner.js",
@@ -474,8 +514,7 @@
     "src": "resources/js/pages/clients/annexure/import.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_input-error.js"
@@ -487,20 +526,20 @@
     "src": "resources/js/pages/clients/annexure/index.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_utils.js",
-      "_icons.js",
+      "_table-sort.js",
+      "_duplicate-invoices.js",
+      "_download.js",
+      "_plus.js",
+      "_statement-entry-grid.js",
+      "_upload.js",
       "_app-table.js",
       "_reconciliation-legend.js",
       "_input-error.js",
-      "_table-sort.js",
-      "_statement-entry-grid.js",
-      "_statement-filter-menus.js",
-      "_duplicate-invoices.js"
+      "_statement-filter-menus.js"
     ]
   },
   "resources/js/pages/clients/create.tsx": {
@@ -509,8 +548,7 @@
     "src": "resources/js/pages/clients/create.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_input-error.js"
@@ -522,15 +560,12 @@
     "src": "resources/js/pages/clients/cross-check/index.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js",
+      "_table-sort.js",
       "_app-table.js",
       "_reconciliation-legend.js",
-      "_table-sort.js",
       "_statement-filter-menus.js",
       "_badge.js"
     ]
@@ -541,8 +576,7 @@
     "src": "resources/js/pages/clients/edit.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_input-error.js"
@@ -554,13 +588,12 @@
     "src": "resources/js/pages/clients/generate-statement.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_utils.js",
-      "_icons.js",
+      "_chevron-down.js",
+      "_download.js",
       "_app-table.js",
       "_statement-filter-menus.js",
       "_export.js"
@@ -572,10 +605,9 @@
     "src": "resources/js/pages/clients/index.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
-      "_icons.js",
+      "_plus.js",
       "_badge.js",
       "_page-layout.js"
     ]
@@ -586,11 +618,10 @@
     "src": "resources/js/pages/clients/invoices/show.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js",
+      "_createLucideIcon.js",
       "_badge.js"
     ]
   },
@@ -600,8 +631,7 @@
     "src": "resources/js/pages/clients/received-statements/import.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_input-error.js"
@@ -613,21 +643,21 @@
     "src": "resources/js/pages/clients/received-statements/index.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_checkbox.js",
       "_label.js",
       "_utils.js",
-      "_icons.js",
+      "_table-sort.js",
+      "_duplicate-invoices.js",
+      "_download.js",
+      "_refresh-cw.js",
+      "_statement-entry-grid.js",
+      "_upload.js",
       "_app-table.js",
       "_reconciliation-legend.js",
       "_input-error.js",
-      "_table-sort.js",
-      "_statement-entry-grid.js",
       "_statement-filter-menus.js",
-      "_duplicate-invoices.js",
       "_page-layout.js"
     ]
   },
@@ -637,16 +667,21 @@
     "src": "resources/js/pages/clients/show.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
+      "_dist.js",
+      "_dist2.js",
+      "_es2015.js",
       "_label.js",
+      "_dist3.js",
+      "_dist4.js",
       "_utils.js",
-      "_icons.js",
+      "_createLucideIcon.js",
+      "_table-sort.js",
+      "_chevron-down.js",
+      "_plus.js",
       "_app-table.js",
       "_input-error.js",
-      "_table-sort.js",
       "_badge.js",
       "_statements.js"
     ]
@@ -657,20 +692,18 @@
     "src": "resources/js/pages/clients/statement-view.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_utils.js",
-      "_icons.js",
+      "_table-sort.js",
+      "_duplicate-invoices.js",
+      "_download.js",
       "_stats-summary-line.js",
       "_app-table.js",
       "_reconciliation-legend.js",
       "_input-error.js",
-      "_table-sort.js",
-      "_statement-filter-menus.js",
-      "_duplicate-invoices.js"
+      "_statement-filter-menus.js"
     ]
   },
   "resources/js/pages/dashboard.tsx": {
@@ -679,10 +712,12 @@
     "src": "resources/js/pages/dashboard.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
-      "_icons.js",
+      "_createLucideIcon.js",
+      "_plus.js",
+      "_scan-line.js",
+      "_upload.js",
       "_app-table.js",
       "_badge.js",
       "_page-layout.js",
@@ -695,11 +730,10 @@
     "src": "resources/js/pages/settings/appearance.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_utils.js",
-      "_icons.js"
+      "_createLucideIcon.js"
     ]
   },
   "resources/js/pages/settings/data.tsx": {
@@ -708,12 +742,12 @@
     "src": "resources/js/pages/settings/data.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_checkbox.js",
       "_label.js",
-      "_icons.js",
+      "_download.js",
+      "_upload.js",
       "_input-error.js"
     ]
   },
@@ -723,14 +757,11 @@
     "src": "resources/js/pages/settings/profile.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
-      "_icons.js",
-      "_input-error.js",
       "_password-input.js",
+      "_input-error.js",
       "_verification.js"
     ]
   },
@@ -740,17 +771,18 @@
     "src": "resources/js/pages/settings/security.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
-      "_react.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
+      "_react.js",
+      "_dist2.js",
       "_label.js",
       "_utils.js",
       "_use-two-factor-auth.js",
-      "_icons.js",
-      "_input-error.js",
+      "_createLucideIcon.js",
       "_password-input.js",
+      "_refresh-cw.js",
+      "_scan-line.js",
+      "_input-error.js",
       "_spinner.js"
     ]
   },
@@ -760,15 +792,12 @@
     "src": "resources/js/pages/setup/index.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_utils.js",
-      "_icons.js",
-      "_input-error.js",
       "_password-input.js",
+      "_input-error.js",
       "_spinner.js"
     ]
   },
@@ -778,8 +807,7 @@
     "src": "resources/js/pages/statements/import.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_label.js",
       "_input-error.js",
@@ -792,22 +820,25 @@
     "src": "resources/js/pages/statements/index.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_rolldown-runtime.js",
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx",
       "_checkbox.js",
       "_label.js",
       "_utils.js",
-      "_icons.js",
+      "_createLucideIcon.js",
+      "_table-sort.js",
+      "_duplicate-invoices.js",
+      "_download.js",
+      "_plus.js",
+      "_refresh-cw.js",
+      "_scan-line.js",
+      "_statement-entry-grid.js",
+      "_upload.js",
       "_stats-summary-line.js",
       "_app-table.js",
       "_reconciliation-legend.js",
       "_input-error.js",
-      "_table-sort.js",
-      "_statement-entry-grid.js",
       "_statement-filter-menus.js",
-      "_duplicate-invoices.js",
       "_page-layout.js",
       "_export.js",
       "_statements.js"
@@ -819,8 +850,7 @@
     "src": "resources/js/pages/welcome.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js",
-      "_radix.js",
+      "_jsx-runtime.js",
       "resources/js/app.tsx"
     ]
   }
