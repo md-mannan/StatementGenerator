@@ -97,15 +97,16 @@ export default function ClientsShow({
         const statsByBranch = new Map<number, BranchMonthStat[]>();
 
         branchMonthStats.forEach((stat) => {
-            const existing = statsByBranch.get(stat.branch_id) ?? [];
+            const branchId = Number(stat.branch_id);
+            const existing = statsByBranch.get(branchId) ?? [];
             existing.push(stat);
-            statsByBranch.set(stat.branch_id, existing);
+            statsByBranch.set(branchId, existing);
         });
 
         const rows: BranchMonthRow[] = [];
 
         branches.forEach((branch) => {
-            const stats = (statsByBranch.get(branch.id) ?? []).sort(
+            const stats = (statsByBranch.get(Number(branch.id)) ?? []).sort(
                 (left, right) => {
                     if (left.year !== right.year) {
                         return right.year - left.year;
@@ -116,6 +117,25 @@ export default function ClientsShow({
             );
 
             if (stats.length === 0) {
+                if (branch.statement_entries_count > 0) {
+                    rows.push({
+                        key: `${branch.id}-summary`,
+                        branch,
+                        stat: {
+                            branch_id: Number(branch.id),
+                            year: 0,
+                            month: 0,
+                            label: 'All periods',
+                            entries_count: branch.statement_entries_count,
+                            total_amount: branch.total_amount,
+                            total_amount_value: branch.total_amount_value,
+                            last_uploaded_at: branch.last_uploaded_at,
+                        },
+                    });
+
+                    return;
+                }
+
                 rows.push({
                     key: `${branch.id}-empty`,
                     branch,
@@ -580,10 +600,20 @@ export default function ClientsShow({
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
-                                                            asChild={stat !== null}
-                                                            disabled={stat === null}
+                                                            asChild={
+                                                                stat !== null &&
+                                                                stat.year > 0 &&
+                                                                stat.month > 0
+                                                            }
+                                                            disabled={
+                                                                stat === null ||
+                                                                stat.year === 0 ||
+                                                                stat.month === 0
+                                                            }
                                                         >
-                                                            {stat !== null ? (
+                                                            {stat !== null &&
+                                                            stat.year > 0 &&
+                                                            stat.month > 0 ? (
                                                                 <Link
                                                                     href={statementsIndex(
                                                                         branch.id,

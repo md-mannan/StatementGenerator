@@ -136,6 +136,40 @@ test('client branches page lists each statement month separately', function () {
             ->where('branchMonthStats.1.total_amount', '100.000'));
 });
 
+test('branch month stats fall back to statement period when transaction date is missing', function () {
+    $user = User::factory()->create();
+    $client = Client::factory()->forUser($user)->create();
+    $branch = $client->branches()->create([
+        'code' => '01',
+        'name' => 'Al Rai',
+    ]);
+
+    DB::table('statement_entries')->insert([
+        'branch_id' => $branch->id,
+        'user_id' => $user->id,
+        'transaction_date' => '0000-00-00',
+        'statement_year' => 2026,
+        'statement_month' => 5,
+        'invoice_no' => '27965',
+        'amount' => 1181.000,
+        'no_bill_expected' => false,
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $this->actingAs($user)
+        ->get(route('clients.show', $client))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('clients/show')
+            ->has('branchMonthStats', 1)
+            ->where('branchMonthStats.0.branch_id', $branch->id)
+            ->where('branchMonthStats.0.year', 2026)
+            ->where('branchMonthStats.0.month', 5)
+            ->where('branchMonthStats.0.entries_count', 1)
+            ->where('branchMonthStats.0.total_amount', '1181.000'));
+})->skip(fn () => DB::connection()->getDriverName() !== 'mysql', 'MySQL-only zero-date scenario');
+
 test('branch month stats use invoice month not statement period', function () {
     $user = User::factory()->create();
     $client = Client::factory()->forUser($user)->create();
