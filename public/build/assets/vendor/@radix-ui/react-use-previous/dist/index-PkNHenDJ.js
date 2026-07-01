@@ -1,0 +1,1 @@
+import{h as e,v as t}from"../../../../js/lib/utils-C6ZPgHAn.js";var n=t(e(),1);function r(e){let t=n.useRef({value:e,previous:e});return n.useMemo(()=>(t.current.value!==e&&(t.current.previous=t.current.value,t.current.value=e),t.current.previous),[e])}export{r as t};
