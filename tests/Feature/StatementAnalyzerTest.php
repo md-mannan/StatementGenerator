@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 test('guests cannot access clients', function () {
-    $this->get(route('clients.index'))->assertRedirect(route('login'));
+    $this->get(route('clients.index'))->assertRedirect(route('home'));
 });
 
 test('authenticated users can list their clients', function () {

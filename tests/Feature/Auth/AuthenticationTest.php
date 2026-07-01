@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
 
 test('login screen can be rendered', function () {
-    $response = $this->get(route('login'));
+    $this->get(route('login'))
+        ->assertRedirect(route('home'));
+
+    $response = $this->get(route('home'));
 
     $response->assertOk();
 });

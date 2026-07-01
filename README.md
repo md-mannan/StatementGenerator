@@ -39,7 +39,6 @@ A web application for reconciling retail client statements across branch records
 ### Authentication
 
 - Laravel Fortify: registration, login, email verification, password reset, and two-factor authentication
-- Optional passkey support via `@laravel/passkeys`
 
 ## Tech stack
 

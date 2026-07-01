@@ -11,7 +11,7 @@ beforeEach(function () {
 });
 
 test('guests cannot access database backup settings', function () {
-    $this->get(route('data.edit'))->assertRedirect(route('login'));
+    $this->get(route('data.edit'))->assertRedirect(route('home'));
 });
 
 test('users can view database backup settings', function () {
@@ -75,7 +75,7 @@ test('users can restore application data after wiping', function () {
             ),
             'confirm' => '1',
         ])
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('home'));
 
     expect(Client::query()->where('name', 'After Wipe Restore')->exists())->toBeTrue();
 });
@@ -126,7 +126,7 @@ test('users can export and restore a full database backup', function () {
             ),
             'confirm' => '1',
         ])
-        ->assertRedirect(route('login'))
+        ->assertRedirect(route('home'))
         ->assertSessionHas('status');
 
     expect(Client::query()->where('name', 'Lulu Hyper Market')->exists())->toBeTrue();
@@ -165,7 +165,7 @@ test('restore imports statement entries and verifies row counts', function () {
             ),
             'confirm' => '1',
         ])
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('home'));
 
     expect(StatementEntry::query()->count())->toBe(5)
         ->and(Client::query()->where('name', 'Lulu Hyper Market')->exists())->toBeTrue();
@@ -195,7 +195,7 @@ test('restore accepts sql.gz uploads stored without a file extension', function 
             ),
             'confirm' => '1',
         ])
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('home'));
 
     expect(Client::query()->where('name', 'Restore Me Shop')->exists())->toBeTrue();
 });

@@ -19,7 +19,7 @@ class RedirectIfInstalled
                 return redirect()->route('dashboard');
             }
 
-            return redirect()->route('login');
+            return redirect()->route('home');
         }
 
         return $next($request);

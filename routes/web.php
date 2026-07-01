@@ -21,9 +21,17 @@ use App\Http\Controllers\StatementEntryController;
 use App\Http\Controllers\StatementExportController;
 use App\Http\Controllers\StatementImportController;
 use App\Http\Controllers\StatementInvoiceScanController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+use Laravel\Fortify\Features;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', function (Request $request) {
+    return Inertia::render('auth/login', [
+        'canResetPassword' => Features::enabled(Features::resetPasswords()),
+        'status' => $request->session()->get('status'),
+    ]);
+})->middleware('guest')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::bind('client', function (string $value) {

@@ -468,7 +468,7 @@ class GlobalSearchService
             $this->item('clients', 'Clients', null, 'Pages', route('clients.index'), 'clients list'),
             $this->item('clients-create', 'Add Client', null, 'Pages', route('clients.create'), 'new client create'),
             $this->item('settings-profile', 'Profile', null, 'Settings', route('profile.edit'), 'account profile settings'),
-            $this->item('settings-security', 'Security', null, 'Settings', route('security.edit'), 'password passkey security'),
+            $this->item('settings-security', 'Security', null, 'Settings', route('security.edit'), 'password security'),
             $this->item('settings-appearance', 'Appearance', null, 'Settings', route('appearance.edit'), 'theme dark light appearance'),
             $this->item('settings-data', 'Database backup', null, 'Settings', route('data.edit'), 'database backup restore export wipe sql mysqldump clear data'),
         ];

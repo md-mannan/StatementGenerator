@@ -74,7 +74,7 @@ class DataController extends Controller
             'message' => __('Database restored successfully. Please sign in again.'),
         ]);
 
-        return to_route('login')->with(
+        return to_route('home')->with(
             'status',
             __('Database restored successfully. Please sign in again.'),
         );

@@ -45,7 +45,6 @@ class DatabaseBackupService
      */
     private const PRESERVED_TABLES = [
         'users',
-        'passkeys',
         'migrations',
         'password_reset_tokens',
         'sessions',

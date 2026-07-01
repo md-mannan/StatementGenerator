@@ -126,5 +126,5 @@ it('redirects away from setup after installation', function (): void {
     Installation::markInstalled();
 
     $this->get(route('setup.show'))
-        ->assertRedirect(route('login'));
+        ->assertRedirect(route('home'));
 });

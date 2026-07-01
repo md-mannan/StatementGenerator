@@ -163,8 +163,8 @@ export default function DataSettings({ summary }: { summary: DatabaseSummary }) 
                         </CardTitle>
                         <CardDescription>
                             Delete all clients, branches, statements, annexures,
-                            and uploaded invoice scans. User accounts, passkeys,
-                            and login sessions are kept. Download a backup first
+                            and uploaded invoice scans. User accounts and login
+                            sessions are kept. Download a backup first if you
                             if you may need to restore this data later.
                         </CardDescription>
                     </CardHeader>

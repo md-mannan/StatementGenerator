@@ -9,7 +9,7 @@ use App\Models\StatementEntry;
 use App\Models\User;
 
 test('guests cannot use global search', function () {
-    $this->get(route('search'))->assertRedirect(route('login'));
+    $this->get(route('search'))->assertRedirect(route('home'));
 });
 
 test('authenticated users can search clients and pages', function () {

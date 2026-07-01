@@ -32,7 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->redirectGuestsTo(function () {
             return Installation::isInstalled()
-                ? route('login')
+                ? route('home')
                 : route('setup.show');
         });
         $middleware->redirectUsersTo(fn () => route('dashboard'));
