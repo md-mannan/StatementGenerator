@@ -40,7 +40,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { StatementEntry } from '@/types/statement';
 import { router } from '@inertiajs/react';
-import { Camera, Download, FileText, ImageIcon, Loader2, Printer, Trash2 } from 'lucide-react';
+import { Camera, Download, FileText, ImageIcon, Loader2, Maximize2, Printer, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Props = {
@@ -447,6 +447,14 @@ export function InvoiceScanDialog({ entry, open, onOpenChange }: Props) {
         );
     }, [entry]);
 
+    const openScanPreview = useCallback(() => {
+        if (!entry?.invoice_scan_url) {
+            return;
+        }
+
+        setStep('preview');
+    }, [entry]);
+
     if (!entry) {
         return null;
     }
@@ -547,7 +555,7 @@ export function InvoiceScanDialog({ entry, open, onOpenChange }: Props) {
                                         )}
                                 </div>
 
-                                <div className="min-h-0 min-w-0 flex-1">
+                                <div className="min-h-[20rem] min-w-0 flex-1">
                                     {entry.has_invoice_scan &&
                                     entry.invoice_scan_url ? (
                                         <InvoiceScanPreviewViewer
@@ -558,9 +566,11 @@ export function InvoiceScanDialog({ entry, open, onOpenChange }: Props) {
                                             )}
                                             zoom={previewZoom}
                                             onZoomChange={setPreviewZoom}
+                                            onClick={openScanPreview}
+                                            className="min-h-[20rem]"
                                         />
                                     ) : (
-                                        <div className="flex h-full min-h-0 items-center justify-center rounded-lg border border-dashed bg-muted/10 p-4 text-center text-xs text-muted-foreground">
+                                        <div className="flex h-full min-h-[20rem] items-center justify-center rounded-lg border border-dashed bg-muted/10 p-4 text-center text-xs text-muted-foreground">
                                             Upload or capture an invoice scan
                                         </div>
                                     )}
@@ -581,7 +591,16 @@ export function InvoiceScanDialog({ entry, open, onOpenChange }: Props) {
                                                 )}
                                             </span>
                                         </p>
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-wrap gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={openScanPreview}
+                                            >
+                                                <Maximize2 className="size-4" />
+                                                Preview
+                                            </Button>
                                             <Button
                                                 type="button"
                                                 variant="outline"
@@ -652,7 +671,7 @@ export function InvoiceScanDialog({ entry, open, onOpenChange }: Props) {
                             {isImageScanExtension(
                                 entry.invoice_scan_extension,
                             ) ? (
-                                <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded-lg border bg-muted/20 p-3">
+                                <div className="flex min-h-0 flex-1 items-stretch justify-center overflow-hidden rounded-lg border bg-muted/20">
                                     <img
                                         src={entry.invoice_scan_url}
                                         alt={`Invoice scan ${entry.invoice_no}`}

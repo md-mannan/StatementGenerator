@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { Maximize2 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const PREVIEW_ZOOM_MIN = 50;
@@ -13,6 +14,7 @@ type Props = {
     zoom?: number;
     className?: string;
     onZoomChange?: (zoom: number) => void;
+    onClick?: () => void;
 };
 
 function fitImageToContainer(
@@ -20,7 +22,7 @@ function fitImageToContainer(
     naturalWidth: number,
     naturalHeight: number,
 ): { w: number; h: number } {
-    const padding = 16;
+    const padding = 0;
     const cw = Math.max(container.clientWidth - padding, 1);
     const ch = Math.max(container.clientHeight - padding, 1);
     const ratio = Math.min(cw / naturalWidth, ch / naturalHeight);
@@ -42,6 +44,7 @@ export function InvoiceScanPreviewViewer({
     zoom = PREVIEW_ZOOM_DEFAULT,
     className,
     onZoomChange,
+    onClick,
 }: Props) {
     const scale = zoom / 100;
     const containerRef = useRef<HTMLDivElement>(null);
@@ -121,12 +124,30 @@ export function InvoiceScanPreviewViewer({
         <div className={cn('h-full min-h-0 w-full', className)}>
             <div
                 ref={containerRef}
-                className="h-full overflow-auto rounded-lg border bg-muted/20"
+                className={cn(
+                    'group h-full overflow-auto rounded-lg border bg-muted/20 transition-shadow',
+                    onClick && 'cursor-pointer shadow-sm hover:shadow-md',
+                )}
+                onClick={onClick}
+                role={onClick ? 'button' : undefined}
+                tabIndex={onClick ? 0 : undefined}
+                onKeyDown={(event) => {
+                    if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+                        event.preventDefault();
+                        onClick();
+                    }
+                }}
             >
-                <div className="flex min-h-full min-w-full items-center justify-center p-2">
+                {onClick && (
+                    <div className="pointer-events-none absolute right-2 top-2 z-10 hidden items-center gap-1 rounded-full bg-background/90 px-2 py-1 text-[11px] font-medium text-muted-foreground shadow-sm opacity-90 group-hover:flex sm:flex">
+                        <Maximize2 className="size-3" />
+                        Preview
+                    </div>
+                )}
+                <div className="flex min-h-full min-w-full items-center justify-center">
                     {isImage ? (
                         <div
-                            className="shrink-0 transition-[width,height] duration-200 ease-out"
+                            className="relative flex h-full w-full items-center justify-center transition-[width,height] duration-200 ease-out"
                             style={{
                                 width: scaledWidth,
                                 height: scaledHeight,
@@ -142,14 +163,14 @@ export function InvoiceScanPreviewViewer({
                                         event.currentTarget.naturalHeight,
                                     )
                                 }
-                                className="block size-full object-contain"
+                                className="block h-full w-auto object-contain"
                                 style={
                                     fitSize
                                         ? undefined
                                         : {
                                               maxHeight: '100%',
                                               maxWidth: '100%',
-                                              height: 'auto',
+                                              height: '100%',
                                               width: 'auto',
                                           }
                                 }
